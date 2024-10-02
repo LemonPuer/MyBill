@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: my-bill
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.31.100:8848
+        file-extension: yaml
+      discovery:
+        enabled: false
