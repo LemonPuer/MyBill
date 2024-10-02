@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: my-bill
+    name: bill-service
   cloud:
     nacos:
       config:
