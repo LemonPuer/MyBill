@@ -29,7 +29,7 @@ public class User implements Serializable {
      * 主键
      */
     @Id(keyType = KeyType.Auto)
-    private Long id;
+    private Integer id;
 
     /**
      * 用户名

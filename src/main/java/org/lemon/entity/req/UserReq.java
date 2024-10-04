@@ -14,7 +14,7 @@ public class UserReq extends BasePage {
     /**
      * 主键
      */
-    private Long id;
+    private Integer id;
 
     /**
      * 用户名
@@ -25,11 +25,6 @@ public class UserReq extends BasePage {
      * 邮箱
      */
     private String email;
-
-    /**
-     * 密码
-     */
-    private String password;
 
     /**
      * 头像

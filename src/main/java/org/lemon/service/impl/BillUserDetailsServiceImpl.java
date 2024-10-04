@@ -24,7 +24,7 @@ import java.util.List;
 @Data
 @Slf4j
 @Component
-public class BillUserDetailsService implements UserDetailsService {
+public class BillUserDetailsServiceImpl implements UserDetailsService {
 
     private UserService userService;
 

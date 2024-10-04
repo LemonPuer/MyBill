@@ -24,14 +24,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = BusinessException.class)
     public ApiResp<String> storageSourceException(BusinessException e) {
-        log.error("BusinessException: ", e);
+        log.error("业务异常: ", e);
         return ApiResp.fail(e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = Exception.class)
     public ApiResp<String> storageSourceException(Exception e) {
-        log.error("BusinessException: ", e);
+        log.error("系统异常: ", e);
         return ApiResp.fail("系统异常, 请联系管理员");
     }
 }

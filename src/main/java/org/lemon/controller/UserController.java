@@ -1,20 +1,13 @@
 package org.lemon.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
+import org.lemon.entity.User;
 import org.lemon.entity.req.UserReq;
 import org.lemon.entity.resp.ApiResp;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.lemon.entity.User;
 import org.lemon.service.UserService;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户信息表 控制层。
@@ -47,8 +40,8 @@ public class UserController {
      * @return {@code true} 删除成功，{@code false} 删除失败
      */
     @DeleteMapping("remove/{id}")
-    public boolean remove(@PathVariable Long id) {
-        return userService.removeById(id);
+    public ApiResp<Boolean> remove(@PathVariable Long id) {
+        return ApiResp.ok(userService.removeById(id));
     }
 
 
@@ -58,20 +51,26 @@ public class UserController {
      * @param id 用户信息表主键
      * @return 用户信息表详情
      */
-    @GetMapping("getInfo/{id}")
-    public User getInfo(@PathVariable Long id) {
-        return userService.getById(id);
+    @GetMapping("detail/{id}")
+    public ApiResp<UserReq> getInfo(@PathVariable Integer id) {
+        return ApiResp.ok(userService.getOneAs(userService.queryChain().eq(User::getId, id), UserReq.class));
     }
 
     /**
      * 分页查询用户信息表。
      *
-     * @param page 分页对象
+     * @param req 分页对象
      * @return 分页对象
      */
     @PostMapping("page")
-    public Page<User> page(Page<User> page) {
-        return userService.page(page);
+    public ApiResp<Page<User>> page(@RequestBody UserReq req) {
+        return ApiResp.ok(userService.queryChain().like(User::getUsername, req.getUsername(), StrUtil.isNotBlank(req.getUsername()))
+                .or(chain -> {
+                    chain.like(User::getEmail, req.getEmail(), StrUtil.isNotBlank(req.getEmail()));
+                }).or(chain -> {
+                    chain.like(User::getDescription, req.getDescription(), StrUtil.isNotBlank(req.getDescription()));
+                }).orderBy(User::getId).asc()
+                .page(new Page<>(req.getPageNum(), req.getPageSize())));
     }
 
 }
