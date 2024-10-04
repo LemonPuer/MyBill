@@ -1,16 +1,18 @@
-package org.lemon.entity.req;
+package org.lemon.entity.resp;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * description: add a description
  *
  * @author Lemon
  * @version 1.0.0
- * @date 2024/10/01 22:46:17
+ * @date 2024/10/04 23:09:30
  */
 @Data
-public class UserReq extends BasePage {
+@Accessors(chain = true)
+public class UserResp {
     /**
      * 主键
      */
@@ -25,11 +27,6 @@ public class UserReq extends BasePage {
      * 邮箱
      */
     private String email;
-
-    /**
-     * 密码
-     */
-    private String password;
 
     /**
      * 头像

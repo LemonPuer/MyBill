@@ -5,6 +5,7 @@ import com.mybatisflex.core.paginate.Page;
 import org.lemon.entity.User;
 import org.lemon.entity.req.UserReq;
 import org.lemon.entity.resp.ApiResp;
+import org.lemon.entity.resp.UserResp;
 import org.lemon.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -52,8 +53,8 @@ public class UserController {
      * @return 用户信息表详情
      */
     @GetMapping("detail/{id}")
-    public ApiResp<UserReq> getInfo(@PathVariable Integer id) {
-        return ApiResp.ok(userService.getOneAs(userService.queryChain().eq(User::getId, id), UserReq.class));
+    public ApiResp<UserResp> getInfo(@PathVariable Integer id) {
+        return ApiResp.ok(userService.getOneAs(userService.queryChain().eq(User::getId, id), UserResp.class));
     }
 
     /**
@@ -63,14 +64,14 @@ public class UserController {
      * @return 分页对象
      */
     @PostMapping("page")
-    public ApiResp<Page<User>> page(@RequestBody UserReq req) {
+    public ApiResp<Page<UserResp>> page(@RequestBody UserReq req) {
         return ApiResp.ok(userService.queryChain().like(User::getUsername, req.getUsername(), StrUtil.isNotBlank(req.getUsername()))
                 .or(chain -> {
                     chain.like(User::getEmail, req.getEmail(), StrUtil.isNotBlank(req.getEmail()));
                 }).or(chain -> {
                     chain.like(User::getDescription, req.getDescription(), StrUtil.isNotBlank(req.getDescription()));
                 }).orderBy(User::getId).asc()
-                .page(new Page<>(req.getPageNum(), req.getPageSize())));
+                .pageAs(new Page<>(req.getPageNum(), req.getPageSize()), UserResp.class));
     }
 
 }
