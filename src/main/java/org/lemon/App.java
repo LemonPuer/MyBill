@@ -3,6 +3,7 @@ package org.lemon;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * description: add a description
@@ -11,10 +12,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @version 1.0.0
  * @date 2024/10/01 17:06:39
  */
+@Async
 // @EnableDiscoveryClient
-@MapperScan(basePackages = "org.lemon.mapper")
 @SpringBootApplication
-public class App{
+@MapperScan(basePackages = "org.lemon.mapper")
+public class App {
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }

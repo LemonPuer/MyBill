@@ -3,6 +3,7 @@ package org.lemon.controller;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
 import org.lemon.entity.User;
+import org.lemon.entity.req.ApiReq;
 import org.lemon.entity.req.UserReq;
 import org.lemon.entity.resp.ApiResp;
 import org.lemon.entity.resp.UserResp;
@@ -26,12 +27,12 @@ public class UserController {
     /**
      * 添加用户信息表。
      *
-     * @param user 用户信息表
+     * @param req 用户信息表
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
     @PostMapping("register")
-    public ApiResp<Boolean> saveOrUpdate(@RequestBody UserReq user) {
-        return ApiResp.ok(userService.saveOrUpdate(user));
+    public ApiResp<Boolean> saveOrUpdate(@RequestBody ApiReq<UserReq> req) {
+        return ApiResp.ok(userService.saveOrUpdate(req.getData()));
     }
 
     /**
@@ -64,14 +65,15 @@ public class UserController {
      * @return 分页对象
      */
     @PostMapping("page")
-    public ApiResp<Page<UserResp>> page(@RequestBody UserReq req) {
-        return ApiResp.ok(userService.queryChain().like(User::getUsername, req.getUsername(), StrUtil.isNotBlank(req.getUsername()))
+    public ApiResp<Page<UserResp>> page(@RequestBody ApiReq<UserReq> req) {
+        UserReq data = req.getData();
+        return ApiResp.ok(userService.queryChain().like(User::getUsername, data.getUsername(), StrUtil.isNotBlank(data.getUsername()))
                 .or(chain -> {
-                    chain.like(User::getEmail, req.getEmail(), StrUtil.isNotBlank(req.getEmail()));
+                    chain.like(User::getEmail, data.getEmail(), StrUtil.isNotBlank(data.getEmail()));
                 }).or(chain -> {
-                    chain.like(User::getDescription, req.getDescription(), StrUtil.isNotBlank(req.getDescription()));
+                    chain.like(User::getDescription, data.getDescription(), StrUtil.isNotBlank(data.getDescription()));
                 }).orderBy(User::getId).asc()
-                .pageAs(new Page<>(req.getPageNum(), req.getPageSize()), UserResp.class));
+                .pageAs(new Page<>(data.getPageNum(), data.getPageSize()), UserResp.class));
     }
 
 }

@@ -1,5 +1,6 @@
 package org.lemon.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import org.lemon.entity.req.UserReq;
 import org.lemon.mapper.UserMapper;
 import org.lemon.service.UserService;
 import org.lemon.utils.CheckUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,8 +51,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     private User checkSave(UserReq user) {
-        CheckUtil.checkField(null, user.getEmail(), user.getPassword());
-        String encode = passwordEncoder.encode(user.getPassword());
-        return new User().setEmail(user.getEmail()).setPassword(encode).setDescription(user.getDescription()).setAvatarUrl(user.getAvatarUrl());
+        CheckUtil.checkField(null, user.getEmail());
+        User result = new User().setEmail(user.getEmail()).setDescription(user.getDescription()).setAvatarUrl(user.getAvatarUrl());
+        if (StrUtil.isNotBlank(user.getPassword())) {
+            String encode = passwordEncoder.encode(user.getPassword());
+            result.setPassword(encode);
+        }
+        return result;
     }
 }

@@ -6,6 +6,9 @@ import org.lemon.entity.exception.BusinessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 /**
  * description: add a description
  *
@@ -35,6 +38,15 @@ public class UserUtil {
         }
 
         return (UserInfo) details;
+    }
+
+    /**
+     * 获取当前登录用户名
+     *
+     * @return
+     */
+    public static String getCurrentUsername() {
+        return Optional.ofNullable(getCurrentUserInfo()).map(UserInfo::getUsername).orElse("");
     }
 
 }
