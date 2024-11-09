@@ -8,6 +8,16 @@ spring:
     nacos:
       config:
         server-addr: 192.168.31.100:8848
+        name: bill-service-dev
         file-extension: yaml
+        group: DEFAULT_GROUP
+        secret-key: SecretKey012345678901234567890123456789012345678901234567890123456789
+        username: common
+        password: 123456
       discovery:
-        enabled: false
+        enabled: true
+        namespace: public
+        server-addr: 192.168.31.100:8848
+        username: common
+        password: 123456
+

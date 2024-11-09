@@ -30,33 +30,37 @@ public class LogInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        String currentUsername = UserUtil.getCurrentUsername();
-        // 为什么不放preHandle：没调用过getInputStream或getReader方法，数据还没真正缓存
-        if (isJsonRequest(request)) {
+        try {
+            String currentUsername = UserUtil.getCurrentUsername();
+            // 为什么不放preHandle：没调用过getInputStream或getReader方法，数据还没真正缓存
+            if (isJsonRequest(request)) {
 
-            ContentCachingRequestWrapper requestWrapper = (ContentCachingRequestWrapper) request;
-            // 获取请求体内容
-            byte[] contentAsByteArray = requestWrapper.getContentAsByteArray();
-            String requestBody = new String(contentAsByteArray, requestWrapper.getCharacterEncoding());
-            if (StrUtil.isNotBlank(requestBody)) {
-                requestBody = JSONObject.parseObject(requestBody).get("data").toString();
+                ContentCachingRequestWrapper requestWrapper = (ContentCachingRequestWrapper) request;
+                // 获取请求体内容
+                byte[] contentAsByteArray = requestWrapper.getContentAsByteArray();
+                String requestBody = new String(contentAsByteArray, requestWrapper.getCharacterEncoding());
+                if (StrUtil.isNotBlank(requestBody)) {
+                    requestBody = JSONObject.parseObject(requestBody).get("data").toString();
+                }
+
+                log.info("用户：{}，请求路径：{}，请求体：{}", currentUsername, request.getRequestURI(), requestBody);
             }
 
-            log.info("用户：{}，请求路径：{}，请求体：{}", currentUsername, request.getRequestURI(), requestBody);
-        }
+            if (!isJsonResponse(response)) {
+                return;
+            }
+            ContentCachingResponseWrapper responseWrapper = (ContentCachingResponseWrapper) response;
 
-        if (!isJsonResponse(response)) {
-            return;
+            // 获取响应体内容
+            byte[] contentAsByteArray = responseWrapper.getContentAsByteArray();
+            String responseBody = new String(contentAsByteArray);
+            if (StrUtil.isNotBlank(responseBody)) {
+                responseBody = JSONObject.parseObject(responseBody).get("data").toString();
+            }
+            log.info("用户：{}，请求路径：{}，响应体：{}", currentUsername, request.getRequestURI(), responseBody);
+        } catch (Exception e) {
+            log.error("日志打印失败：", e);
         }
-        ContentCachingResponseWrapper responseWrapper = (ContentCachingResponseWrapper) response;
-
-        // 获取响应体内容
-        byte[] contentAsByteArray = responseWrapper.getContentAsByteArray();
-        String responseBody = new String(contentAsByteArray);
-        if (StrUtil.isNotBlank(responseBody)) {
-            responseBody = JSONObject.parseObject(responseBody).get("data").toString();
-        }
-        log.info("用户：{}，请求路径：{}，响应体：{}", currentUsername, request.getRequestURI(), responseBody);
 
     }
 

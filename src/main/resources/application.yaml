@@ -1,6 +1,27 @@
 spring:
+  profiles:
+    active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.31.100:3306/bill
-    username: root
-    password: aA20010726
+    url:
+    username:
+    password:
+  mail:
+    default-encoding: utf-8 #默认编码格式
+    host: smtp.qq.com #邮件服务器地址
+    port: 465 #端口号
+    username:
+    password:
+    properties:
+      mail:
+        debug: false #启动debug调试
+        smtp:
+          starttls:
+            enable: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory #SSL连接配置
+
+mybatis-flex:
+  mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl

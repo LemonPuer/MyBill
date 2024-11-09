@@ -38,7 +38,7 @@ public class Codegen {
         // 设置表前缀和只生成哪些表，setGenerateTable 未配置时，生成所有表
         globalConfig.getStrategyConfig()
                 .setTablePrefix("tt_")
-                .setGenerateTable("tt_user");
+                .setGenerateTable("tt_accounts", "tt_monthly_balances");
 
         // 设置生成 entity 并启用 Lombok
         globalConfig.enableEntity().setWithLombok(true)
@@ -46,7 +46,7 @@ public class Codegen {
                 .setOverwriteEnable(true)
                 .setJdkVersion(8);
 
-        globalConfig.enableTableDef().setOverwriteEnable(true);
+        // globalConfig.enableTableDef().setOverwriteEnable(true);
         // 设置生成 mapper
         globalConfig.enableMapper().setOverwriteEnable(true);
 
@@ -54,7 +54,7 @@ public class Codegen {
 
         globalConfig.enableServiceImpl().setOverwriteEnable(true);
 
-        globalConfig.enableController().setOverwriteEnable(true);
+        // globalConfig.enableController().setOverwriteEnable(true);
 
         // 可以单独配置某个列
         // ColumnConfig columnConfig = new ColumnConfig();

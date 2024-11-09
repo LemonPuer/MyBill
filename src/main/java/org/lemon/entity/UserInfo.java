@@ -18,6 +18,10 @@ import java.util.*;
 @Getter
 public class UserInfo implements UserDetails {
     /**
+     * 用户标识
+     */
+    private Integer id;
+    /**
      * 邮件
      */
     private String email;
@@ -38,11 +42,12 @@ public class UserInfo implements UserDetails {
      */
     private final Set<GrantedAuthority> authorities;
 
-    public UserInfo(String username, String password, Collection<? extends GrantedAuthority> authorities) {
-        this(null, username, password, new ArrayList<>(), authorities);
+    public UserInfo(Integer id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        this(id, null, username, password, new ArrayList<>(), authorities);
     }
 
-    public UserInfo(String email, String username, String password, Collection<? extends GrantedAuthority> roles, Collection<? extends GrantedAuthority> authorities) {
+    public UserInfo(Integer id, String email, String username, String password, Collection<? extends GrantedAuthority> roles, Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;

@@ -38,6 +38,6 @@ public class BillUserDetailsServiceImpl implements UserDetailsService {
         // 3.把admin对象和authorities封装到UserDetails中
         String userpswd = user.getPassword();
         // 这个User类不完整，我们可以用自己的
-        return new UserInfo(username, userpswd, authorities);
+        return new UserInfo(user.getId(), username, userpswd, authorities);
     }
 }

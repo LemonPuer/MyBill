@@ -1,33 +1,30 @@
 package org.lemon.controller;
 
-import org.lemon.entity.req.ApiReq;
+import lombok.AllArgsConstructor;
+import org.lemon.entity.req.EmailSendReq;
 import org.lemon.entity.resp.ApiResp;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.bind.annotation.*;
+import org.lemon.service.EmailSendService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 /**
  * description: add a description
  *
  * @author Lemon
  * @version 1.0.0
- * @date 2024/10/02 13:03:59
+ * @date 2024/11/09 16:48:50
  */
 @RestController
-@RequestMapping("openApi/test")
+@RequestMapping("openApi")
+@AllArgsConstructor
 public class OpenApiController {
-    @PostMapping("hello")
-    public ApiResp<String> test(@RequestBody ApiReq<String> req) {
-        return ApiResp.ok("hello " + req.getData());
-    }
+    private EmailSendService emailSendService;
 
-    @GetMapping("hi")
-    public ApiResp<String> test() {
-        return ApiResp.ok("hello world");
+    @PostMapping("sendEmail")
+    public ApiResp<Boolean> send(@Valid EmailSendReq req) {
+        return ApiResp.ok(emailSendService.sendEmail(req));
     }
-
-    @GetMapping("/csrf")
-    public ApiResp<CsrfToken> csrf(CsrfToken token) {
-        return ApiResp.ok(token);
-    }
-
 }
