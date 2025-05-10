@@ -47,12 +47,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("用户名【" + user.getUsername() + "】已存在，不支持修改！");
         }
         String encode = passwordEncoder.encode(user.getPassword());
-        return new User().setUsername(user.getUsername()).setEmail(user.getEmail()).setPassword(encode);
+        return User.builder().username(user.getUsername()).email(user.getEmail()).password(encode).build();
     }
 
     private User checkSave(UserReq user) {
         CheckUtil.checkField(null, user.getEmail());
-        User result = new User().setEmail(user.getEmail()).setDescription(user.getDescription()).setAvatarUrl(user.getAvatarUrl());
+        User result = User.builder().email(user.getEmail()).description(user.getDescription()).avatarUrl(user.getAvatarUrl()).build();
         if (StrUtil.isNotBlank(user.getPassword())) {
             String encode = passwordEncoder.encode(user.getPassword());
             result.setPassword(encode);

@@ -1,7 +1,7 @@
 package org.lemon.controller;
 
-import org.lemon.entity.req.ApiReq;
-import org.lemon.entity.resp.ApiResp;
+import org.lemon.entity.common.ApiReq;
+import org.lemon.entity.common.ApiResp;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 

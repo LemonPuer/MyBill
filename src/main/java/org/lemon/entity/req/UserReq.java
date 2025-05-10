@@ -1,6 +1,7 @@
 package org.lemon.entity.req;
 
 import lombok.Data;
+import org.lemon.entity.common.BasePage;
 
 /**
  * description: add a description

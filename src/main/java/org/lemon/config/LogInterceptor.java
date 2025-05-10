@@ -1,6 +1,7 @@
 package org.lemon.config;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.lemon.utils.UserUtil;
@@ -54,7 +55,7 @@ public class LogInterceptor implements HandlerInterceptor {
             // 获取响应体内容
             byte[] contentAsByteArray = responseWrapper.getContentAsByteArray();
             String responseBody = new String(contentAsByteArray);
-            if (StrUtil.isNotBlank(responseBody)) {
+            if (StrUtil.isNotBlank(responseBody) && JSONUtil.isTypeJSON(responseBody)) {
                 responseBody = JSONObject.parseObject(responseBody).get("data").toString();
             }
             log.info("用户：{}，请求路径：{}，响应体：{}", currentUsername, request.getRequestURI(), responseBody);

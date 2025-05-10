@@ -2,6 +2,7 @@ package org.lemon.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lemon.entity.exception.BusinessException;
 import org.lemon.entity.req.EmailSendReq;
@@ -18,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * description: add a description
+ * 邮件发送服务
  *
  * @author Lemon
  * @version 1.0.0
@@ -28,11 +29,14 @@ import java.util.Objects;
 @Service
 public class EmailSendService {
 
-    @Autowired
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     @Value("${email.account:${spring.mail.username}}")
     private String myEmailAccount;
+
+    public EmailSendService(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
+    }
 
     public boolean sendEmail(EmailSendReq req) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -44,7 +48,7 @@ public class EmailSendService {
             setEmailContent(req, helper);
             if (CollUtil.isNotEmpty(req.getAttachment())) {
                 for (MultipartFile file : req.getAttachment()) {
-                    helper.addAttachment(file.getOriginalFilename(), file);
+                    helper.addAttachment(Objects.requireNonNull(file.getOriginalFilename()), file);
                 }
             }
             javaMailSender.send(mimeMessage);

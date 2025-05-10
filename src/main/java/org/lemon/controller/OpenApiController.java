@@ -2,7 +2,7 @@ package org.lemon.controller;
 
 import lombok.AllArgsConstructor;
 import org.lemon.entity.req.EmailSendReq;
-import org.lemon.entity.resp.ApiResp;
+import org.lemon.entity.common.ApiResp;
 import org.lemon.service.EmailSendService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

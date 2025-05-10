@@ -1,4 +1,4 @@
-package org.lemon.entity.req;
+package org.lemon.entity.common;
 
 import lombok.Data;
 

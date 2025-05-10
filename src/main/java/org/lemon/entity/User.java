@@ -3,14 +3,11 @@ package org.lemon.entity;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 用户信息表 实体类。
@@ -19,7 +16,7 @@ import lombok.experimental.Accessors;
  * @since 2024-10-01
  */
 @Data
-@Accessors(chain = true)
+@Builder
 @Table("tt_user")
 public class User implements Serializable {
 

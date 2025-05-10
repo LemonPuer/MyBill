@@ -1,4 +1,4 @@
-package org.lemon.entity.req;
+package org.lemon.entity.common;
 
 /**
  * 分页请求参数

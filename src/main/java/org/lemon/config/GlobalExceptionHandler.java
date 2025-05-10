@@ -1,12 +1,11 @@
 package org.lemon.config;
 
-import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.lemon.entity.common.ApiResp;
 import org.lemon.entity.exception.BusinessException;
-import org.lemon.entity.resp.ApiResp;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,8 +26,8 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(value = BindException.class)
-    public ApiResp<String> bindException(BindException e) {
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ApiResp<String> bindException(MethodArgumentNotValidException e) {
         log.error("请求参数异常: ", e);
         List<ObjectError> allErrors = e.getAllErrors();
         StringBuilder message = new StringBuilder();
@@ -38,14 +37,12 @@ public class GlobalExceptionHandler {
         return ApiResp.fail(message.substring(0, message.length() - 1));
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = BusinessException.class)
     public ApiResp<String> businessException(BusinessException e) {
         log.error("业务异常: ", e);
         return ApiResp.fail(e.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = Exception.class)
     public ApiResp<String> systemException(Exception e) {
         log.error("系统异常: ", e);

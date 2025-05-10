@@ -1,4 +1,4 @@
-package org.lemon.entity.resp;
+package org.lemon.entity.common;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
