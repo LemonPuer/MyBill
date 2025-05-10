@@ -19,6 +19,10 @@ public class ApiResp<T> {
 
     private T data;
 
+    public static <T> ApiResp<T> ok() {
+        return new ApiResp<T>().setCode(200).setMsg("ok");
+    }
+
     public static <T> ApiResp<T> ok(T data) {
         return new ApiResp<T>().setCode(200).setData(data);
     }

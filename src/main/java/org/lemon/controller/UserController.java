@@ -4,16 +4,20 @@ import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
 import org.lemon.entity.User;
 import org.lemon.entity.common.ApiReq;
-import org.lemon.entity.common.PageResp;
-import org.lemon.entity.req.UserReq;
 import org.lemon.entity.common.ApiResp;
+import org.lemon.entity.common.PageResp;
+import org.lemon.entity.req.UserLoginReq;
+import org.lemon.entity.req.UserReq;
 import org.lemon.entity.resp.UserResp;
 import org.lemon.service.UserService;
+import org.lemon.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
- * 用户信息表 控制层。
+ * 用户信息 控制层。
  *
  * @author Lemon
  * @since 2024-10-01
@@ -24,6 +28,20 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    /**
+     * 登录
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("login")
+    public ApiResp<String> login(@RequestBody ApiReq<UserLoginReq> req, HttpServletResponse response) {
+        String userInfo = userService.login(req.getData());
+        String token = JwtUtil.generateToken(userInfo);
+        response.setHeader("Authorization", "Bearer " + token);
+        return ApiResp.ok();
+    }
 
     /**
      * 添加用户信息表。

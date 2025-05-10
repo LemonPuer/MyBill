@@ -1,11 +1,13 @@
 package org.lemon.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lemon.entity.User;
 import org.lemon.entity.exception.BusinessException;
+import org.lemon.entity.req.UserLoginReq;
 import org.lemon.entity.req.UserReq;
 import org.lemon.mapper.UserMapper;
 import org.lemon.service.UserService;
@@ -41,6 +43,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return saveOrUpdate(result);
     }
 
+    @Override
+    public String login(UserLoginReq data) {
+        String encode = passwordEncoder.encode(data.getPassword());
+        User user = queryChain().eq(User::getUsername, data.getUsername()).one();
+        if (user == null) {
+            throw new BusinessException("用户名不存在！");
+        }
+        if (!passwordEncoder.matches(data.getPassword(), user.getPassword())) {
+            throw new BusinessException("密码错误！");
+        }
+        return user.getId() + ";" + user.getUsername();
+    }
+
     private User checkUpdate(UserReq user) {
         CheckUtil.checkField(null, user.getUsername(), user.getEmail(), user.getPassword());
         if (queryChain().eq(User::getUsername, user.getUsername()).ne(User::getId, user.getId()).exists()) {
@@ -51,12 +66,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     private User checkSave(UserReq user) {
-        CheckUtil.checkField(null, user.getEmail());
-        User result = User.builder().email(user.getEmail()).description(user.getDescription()).avatarUrl(user.getAvatarUrl()).build();
-        if (StrUtil.isNotBlank(user.getPassword())) {
-            String encode = passwordEncoder.encode(user.getPassword());
-            result.setPassword(encode);
+        CheckUtil.checkField(null, user.getEmail(), user.getPassword(), user.getUsername());
+        if (queryChain().eq(User::getUsername, user.getUsername()).exists()) {
+            throw new BusinessException("用户名【" + user.getUsername() + "】已存在！");
         }
+        User result = User.builder().username(user.getUsername()).email(user.getEmail())
+                .description(user.getDescription()).avatarUrl(user.getAvatarUrl()).build();
+        String encode = passwordEncoder.encode(user.getPassword());
+        result.setPassword(encode);
         return result;
     }
 }

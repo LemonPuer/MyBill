@@ -2,6 +2,7 @@ package org.lemon.service;
 
 import com.mybatisflex.core.service.IService;
 import org.lemon.entity.User;
+import org.lemon.entity.req.UserLoginReq;
 import org.lemon.entity.req.UserReq;
 
 /**
@@ -18,4 +19,12 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean saveOrUpdate(UserReq user);
+
+    /**
+     * 登录
+     *
+     * @param data
+     * @return
+     */
+    String login(UserLoginReq data);
 }
