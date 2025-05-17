@@ -6,7 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lemon.entity.DTO.SystemEmailDTO;
+import org.lemon.entity.dto.SystemEmailDTO;
 import org.lemon.entity.User;
 import org.lemon.entity.UserInfo;
 import org.lemon.entity.UserToken;

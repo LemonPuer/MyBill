@@ -1,4 +1,4 @@
-package org.lemon.entity.DTO;
+package org.lemon.entity.dto;
 
 import lombok.Data;
 

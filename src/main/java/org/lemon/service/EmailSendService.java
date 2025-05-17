@@ -5,7 +5,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lemon.entity.DTO.SystemEmailDTO;
+import org.lemon.entity.dto.SystemEmailDTO;
 import org.lemon.entity.exception.BusinessException;
 import org.lemon.entity.req.EmailSendReq;
 import org.springframework.core.io.Resource;

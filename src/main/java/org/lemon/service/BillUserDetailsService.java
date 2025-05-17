@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lemon.entity.User;
 import org.lemon.entity.UserInfo;
 import org.lemon.entity.exception.BusinessException;
+import org.lemon.entity.table.UserTableDef;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
