@@ -18,9 +18,9 @@ public class PropertiesService {
     @Value("${email.account:${spring.mail.username}}")
     private String myEmailAccount;
 
-    @Value("${JWT.refresh.tokenKey}")
+    @Value("${JWT.refresh.tokenKey:0196de86-31d5-7634-a8f0-f3db05cd6656}")
     private String tokenKey;
 
-    @Value("${JWT.refresh.tokenExpireDay}")
+    @Value("${JWT.refresh.tokenExpireDay:15}")
     private Integer tokenExpireDay;
 }

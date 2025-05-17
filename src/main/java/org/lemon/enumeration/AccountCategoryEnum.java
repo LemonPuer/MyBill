@@ -3,26 +3,28 @@ package org.lemon.enumeration;
 import lombok.Getter;
 
 /**
- * 金额类型
+ * description: add a description
  *
  * @author Lemon
  * @version 1.0.0
- * @date 2025/05/16 23:22:22
+ * @date 2025/05/17 22:08:01
  */
 @Getter
-public enum AmountTypeEnum implements IBaseEnum {
+public enum AccountCategoryEnum implements IBaseEnum {
 
-    INCOME(1, "收入"),
+    BALANCE(1, "余额"),
 
-    EXPENSE(2, "支出"),
+    CURRENT(2, "活期"),
 
-    BALANCE(3, "结余");
+    INVESTMENT(3, "投资"),
+
+    LOANS(4, "贷款");
 
     private int code;
 
     private String message;
 
-    AmountTypeEnum(int code, String message) {
+    AccountCategoryEnum(int code, String message) {
         this.code = code;
         this.message = message;
     }

@@ -15,12 +15,12 @@ public class CashFlowCardVO {
     /**
      * 金额
      */
-    private String amount;
+    private Double amount;
 
     /**
      * 类型
      */
-    private String type;
+    private Integer type;
 
     /**
      * 比率

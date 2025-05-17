@@ -1,0 +1,66 @@
+package org.lemon.service;
+
+import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
+import org.lemon.entity.Accounts;
+import org.lemon.entity.exception.BusinessException;
+import org.lemon.entity.req.AccountReq;
+import org.lemon.entity.resp.AccountVO;
+import org.lemon.enumeration.AccountCategoryEnum;
+import org.lemon.enumeration.AccountTypeEnum;
+import org.lemon.enumeration.IBaseEnum;
+import org.lemon.mapper.AccountsMapper;
+import org.lemon.utils.UserUtil;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ * 账户表 服务层实现。
+ *
+ * @author Lemon
+ * @since 2025-05-17
+ */
+@Service
+public class AccountsService extends ServiceImpl<AccountsMapper, Accounts> {
+
+    public List<AccountVO> getAccounts() {
+        Integer userId = UserUtil.getCurrentUserId();
+        List<AccountVO> list = queryChain().eq(Accounts::getUserId, userId).list()
+                .stream().map(o -> AccountVO.builder().id(o.getId()).pid(o.getPid())
+                        .accountType(IBaseEnum.getValueByKey(AccountTypeEnum.class, o.getAccountType()))
+                        .accountCategory(IBaseEnum.getValueByKey(AccountCategoryEnum.class, o.getAccountCategory()))
+                        .amount(o.getAmount().doubleValue()).accountName(o.getAccountName())
+                        .build()).collect(Collectors.toList());
+        return combinationTree(0, list);
+    }
+
+    private List<AccountVO> combinationTree(Integer parentId, List<AccountVO> list) {
+        return list.stream()
+                .filter(node -> node.getPid() != null && node.getPid().equals(parentId))
+                .peek(node -> node.setChildren(combinationTree(node.getId(), list)))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean saveOrUpdateAccount(AccountReq data) {
+        Accounts result = data.toAccounts();
+        // 查询是否存在子类，单机加锁
+        synchronized (this) {
+            List<Accounts> list = queryChain().eq(Accounts::getPid, data.getId()).list();
+            if (CollUtil.isNotEmpty(list)) {
+                throw new BusinessException("账户下存在子账户，请先删除子账户！");
+            }
+            if (result.getPid() != null && result.getPid() != 0) {
+                Accounts accounts = Optional.ofNullable(getById(result.getPid())).orElseThrow(() -> new BusinessException("父账户不存在！"));
+                accounts.setAmount(BigDecimal.ZERO);
+                updateById(accounts);
+            }
+            return saveOrUpdate(result);
+        }
+    }
+}

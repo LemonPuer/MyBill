@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.Optional;
 
 /**
- * 账号类型
+ * 账户类型
  *
  * @author Lemon
  * @version 1.0.0
@@ -38,31 +38,6 @@ public enum AccountTypeEnum implements IBaseEnum {
     AccountTypeEnum(int code, String message) {
         this.code = code;
         this.message = message;
-    }
-
-    /**
-     * 根据code获取枚举
-     *
-     * @param code
-     * @return
-     */
-    public static Optional<AccountTypeEnum> getByCode(Integer code) {
-        for (AccountTypeEnum value : values()) {
-            if (value.getCode() == code) {
-                return Optional.of(value);
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * 根据code获取message
-     *
-     * @param code
-     * @return
-     */
-    public static String getMessageByCode(Integer code) {
-        return getByCode(code).map(AccountTypeEnum::getMessage).orElse("");
     }
 
     @Override
