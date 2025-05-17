@@ -16,9 +16,9 @@ public enum RatioTypeEnum implements IBaseEnum {
 
     Decrease(2, "减少");
 
-    private int code;
+    private final int code;
 
-    private String message;
+    private final String message;
 
     RatioTypeEnum(int code, String message) {
         this.code = code;

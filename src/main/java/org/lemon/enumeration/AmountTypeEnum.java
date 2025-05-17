@@ -18,9 +18,9 @@ public enum AmountTypeEnum implements IBaseEnum {
 
     BALANCE(3, "结余");
 
-    private int code;
+    private final int code;
 
-    private String message;
+    private final String message;
 
     AmountTypeEnum(int code, String message) {
         this.code = code;

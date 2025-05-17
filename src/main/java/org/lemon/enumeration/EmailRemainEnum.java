@@ -21,9 +21,9 @@ public enum EmailRemainEnum implements IBaseEnum {
     EVERY_YEAR(4, "每年"),
     ;
 
-    private int code;
+    private final int code;
 
-    private String message;
+    private final String message;
 
     EmailRemainEnum(int code, String message) {
         this.code = code;

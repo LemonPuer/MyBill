@@ -1,9 +1,9 @@
 package org.lemon.controller;
 
-import org.lemon.entity.common.ApiReq;
 import org.lemon.entity.common.ApiResp;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * description: add a description

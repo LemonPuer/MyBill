@@ -20,9 +20,9 @@ public enum AccountCategoryEnum implements IBaseEnum {
 
     LOANS(4, "贷款");
 
-    private int code;
+    private final int code;
 
-    private String message;
+    private final String message;
 
     AccountCategoryEnum(int code, String message) {
         this.code = code;
