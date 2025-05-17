@@ -45,7 +45,7 @@ public class Codegen {
                 .setOverwriteEnable(true)
                 .setJdkVersion(8);
 
-        globalConfig.enableTableDef().setOverwriteEnable(true);
+        // globalConfig.enableTableDef().setOverwriteEnable(true);
         // 设置生成 mapper
         globalConfig.enableMapper().setOverwriteEnable(true);
 
