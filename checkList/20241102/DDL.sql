@@ -13,7 +13,7 @@ CREATE TABLE tt_accounts
 CREATE TABLE tt_monthly_balances
 (
     id                         BIGINT UNSIGNED AUTO_INCREMENT COMMENT '主键',
-    account_id                 INT UNSIGNED NOT NULL COMMENT '账户ID，外键关联 accounts 表',
+    account_id                 INT UNSIGNED NOT NULL COMMENT '账户ID',
     balance                    DECIMAL(10, 2) DEFAULT 0.00 COMMENT '账户余额',
     record_month               DATE NOT NULL COMMENT '记录时间',
     salary_income              DECIMAL(10, 2) DEFAULT 0.00 COMMENT '工资收入',

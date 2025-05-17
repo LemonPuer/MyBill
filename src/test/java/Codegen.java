@@ -1,6 +1,5 @@
 import com.alibaba.druid.pool.DruidDataSource;
 import com.mybatisflex.codegen.Generator;
-import com.mybatisflex.codegen.config.ColumnConfig;
 import com.mybatisflex.codegen.config.GlobalConfig;
 
 /**
@@ -38,7 +37,7 @@ public class Codegen {
         // 设置表前缀和只生成哪些表，setGenerateTable 未配置时，生成所有表
         globalConfig.getStrategyConfig()
                 .setTablePrefix("tt_")
-                .setGenerateTable("tt_accounts", "tt_monthly_balances");
+                .setGenerateTable("tt_user_token");
 
         // 设置生成 entity 并启用 Lombok
         globalConfig.enableEntity().setWithLombok(true)
@@ -46,11 +45,11 @@ public class Codegen {
                 .setOverwriteEnable(true)
                 .setJdkVersion(8);
 
-        // globalConfig.enableTableDef().setOverwriteEnable(true);
+        globalConfig.enableTableDef().setOverwriteEnable(true);
         // 设置生成 mapper
         globalConfig.enableMapper().setOverwriteEnable(true);
 
-        globalConfig.enableService().setOverwriteEnable(true);
+        // globalConfig.enableService().setOverwriteEnable(true);
 
         globalConfig.enableServiceImpl().setOverwriteEnable(true);
 

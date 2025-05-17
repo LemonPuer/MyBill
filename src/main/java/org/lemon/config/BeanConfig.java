@@ -21,7 +21,7 @@ public class BeanConfig {
         return new RestTemplate();
     }
 
-    @Bean
+    @Bean("commonExecutor")
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         int processors = Runtime.getRuntime().availableProcessors();
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

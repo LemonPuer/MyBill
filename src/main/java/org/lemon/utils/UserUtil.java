@@ -6,7 +6,6 @@ import org.lemon.entity.exception.BusinessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 /**
@@ -23,21 +22,17 @@ public class UserUtil {
      *
      * @return
      */
-    public static UserInfo getCurrentUserInfo() {
+    public static Optional<UserInfo> getCurrentUserInfo() {
         // 获取当前认证信息
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null) {
-            throw new BusinessException("用户未登录!");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
         }
-
-        Object details = authentication.getDetails();
+        Object details = authentication.getPrincipal();
         if (!(details instanceof UserInfo)) {
-            log.error("用户信息存储异常，当前登录用户信息：{}", details.getClass().getName());
-            return null;
+            return Optional.empty();
         }
-
-        return (UserInfo) details;
+        return Optional.of((UserInfo) details);
     }
 
     /**
@@ -46,7 +41,16 @@ public class UserUtil {
      * @return
      */
     public static String getCurrentUsername() {
-        return Optional.ofNullable(getCurrentUserInfo()).map(UserInfo::getUsername).orElse("");
+        return getCurrentUserInfo().map(UserInfo::getUsername).orElse("");
+    }
+
+    /**
+     * 获取当前登录用户id
+     *
+     * @return
+     */
+    public static Integer getCurrentUserId() {
+        return getCurrentUserInfo().map(UserInfo::getId).orElseThrow(() -> new BusinessException("用户信息不存在！"));
     }
 
 }

@@ -12,6 +12,7 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 
 /**
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 public class LogInterceptor implements HandlerInterceptor {
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
@@ -33,32 +35,34 @@ public class LogInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         try {
             String currentUsername = UserUtil.getCurrentUsername();
+            String uri = request.getRequestURI();
+            if (uri.contains("user/")) {
+                // 避免泄露用户信息
+                return;
+            }
             // 为什么不放preHandle：没调用过getInputStream或getReader方法，数据还没真正缓存
             if (isJsonRequest(request)) {
-
                 ContentCachingRequestWrapper requestWrapper = (ContentCachingRequestWrapper) request;
                 // 获取请求体内容
                 byte[] contentAsByteArray = requestWrapper.getContentAsByteArray();
                 String requestBody = new String(contentAsByteArray, requestWrapper.getCharacterEncoding());
-                if (StrUtil.isNotBlank(requestBody)) {
-                    requestBody = JSONObject.parseObject(requestBody).get("data").toString();
+                if (StrUtil.isNotBlank(requestBody) && JSONUtil.isTypeJSON(requestBody)) {
+                    requestBody = Optional.ofNullable(JSONObject.parseObject(requestBody).getString("data")).orElse("");
                 }
-
-                log.info("用户：{}，请求路径：{}，请求体：{}", currentUsername, request.getRequestURI(), requestBody);
+                log.info("用户：{}，请求路径：{}，请求体：{}", currentUsername, uri, requestBody);
             }
 
             if (!isJsonResponse(response)) {
                 return;
             }
             ContentCachingResponseWrapper responseWrapper = (ContentCachingResponseWrapper) response;
-
             // 获取响应体内容
             byte[] contentAsByteArray = responseWrapper.getContentAsByteArray();
             String responseBody = new String(contentAsByteArray);
             if (StrUtil.isNotBlank(responseBody) && JSONUtil.isTypeJSON(responseBody)) {
-                responseBody = JSONObject.parseObject(responseBody).get("data").toString();
+                responseBody = Optional.ofNullable(JSONObject.parseObject(responseBody).getString("data")).orElse("");
             }
-            log.info("用户：{}，请求路径：{}，响应体：{}", currentUsername, request.getRequestURI(), responseBody);
+            log.info("用户：{}，请求路径：{}，响应体：{}", currentUsername, uri, responseBody);
         } catch (Exception e) {
             log.error("日志打印失败：", e);
         }

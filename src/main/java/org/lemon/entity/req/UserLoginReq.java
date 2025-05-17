@@ -25,4 +25,9 @@ public class UserLoginReq {
      */
     @NotBlank(message = "密码不能为空!")
     private String password;
+
+    /**
+     * 设备ID
+     */
+    private String deviceId;
 }

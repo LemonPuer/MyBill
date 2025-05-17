@@ -15,19 +15,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("openApi/test")
 public class TestController {
-    @PostMapping("hello")
-    public ApiResp<String> test(@RequestBody ApiReq<String> req) {
-        return ApiResp.ok("hello " + req.getData());
-    }
 
     @GetMapping("hi")
     public ApiResp<String> test() {
         return ApiResp.ok("hello world");
-    }
-
-    @GetMapping("csrf")
-    public ApiResp<CsrfToken> csrf(CsrfToken token) {
-        return ApiResp.ok(token);
     }
 
 }

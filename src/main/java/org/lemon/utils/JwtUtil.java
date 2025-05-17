@@ -1,10 +1,18 @@
 package org.lemon.utils;
 
 
-import io.jsonwebtoken.*;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.lemon.entity.resp.UserTokenVO;
 
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 /**
@@ -25,25 +33,51 @@ public class JwtUtil {
      */
     private static final long EXPIRATION = 24 * 60 * 60 * 1000;
 
-    public static String generateToken(String userInfo) {
-        return Jwts.builder()
+    /**
+     * 生成 JWT Token
+     *
+     * @param userInfo
+     * @return
+     */
+    public static UserTokenVO generateToken(String userInfo) {
+        UserTokenVO result = new UserTokenVO();
+        LocalDateTime expireTime = LocalDateTimeUtil.offset(LocalDateTime.now(), EXPIRATION, ChronoUnit.MILLIS);
+        String accessToken = Jwts.builder()
                 .setSubject(userInfo)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setExpiration(DateUtil.date(expireTime))
                 // 使用 Key + 指定算法
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS512)
                 .compact();
+        result.setAccessToken(accessToken);
+        result.setExpireTime(expireTime);
+        return result;
     }
 
+    /**
+     * 获取refreshToken
+     *
+     * @return
+     */
+    public static String generateRefreshToken(String userInfo, String deviceId, String tokenKey, Date expireDay) {
+        return Jwts.builder()
+                .setSubject(userInfo)
+                .setId(userInfo + "-" + deviceId)
+                .setExpiration(expireDay)
+                .signWith(Keys.hmacShaKeyFor(tokenKey.getBytes()), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    /**
+     * 解析用户信息
+     *
+     * @param token
+     * @return
+     */
     public static String extractUserInfo(String token) {
-        return parseClaimsJws(token).getBody().getSubject();
-    }
-
-    public static boolean validateToken(String token) {
         try {
-            parseClaimsJws(token);
-            return true;
-        } catch (JwtException e) {
-            return false;
+            return parseClaimsJws(token).getBody().getSubject();
+        } catch (Exception e) {
+            return "";
         }
     }
 

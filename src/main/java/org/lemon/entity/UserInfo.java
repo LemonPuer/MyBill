@@ -3,10 +3,9 @@ package org.lemon.entity;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * description: add a description
@@ -22,50 +21,44 @@ public class UserInfo implements UserDetails {
      */
     private Integer id;
     /**
-     * 邮件
-     */
-    private String email;
-    /**
-     * 密码
-     */
-    private String password;
-    /**
      * 用户名
      */
     private final String username;
-    /**
-     * 角色
-     */
-    private final Set<GrantedAuthority> roles;
-    /**
-     * 权限
-     */
-    private final Set<GrantedAuthority> authorities;
+    // /**
+    //  * 角色
+    //  */
+    // private final Set<GrantedAuthority> roles;
+    // /**
+    //  * 权限
+    //  */
+    // private final Set<GrantedAuthority> authorities;
 
-    public UserInfo(Integer id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
-        this(id, null, username, password, new ArrayList<>(), authorities);
-    }
-
-    public UserInfo(Integer id, String email, String username, String password, Collection<? extends GrantedAuthority> roles, Collection<? extends GrantedAuthority> authorities) {
+    public UserInfo(Integer id, String username) {
         this.id = id;
-        this.email = email;
         this.username = username;
-        this.password = password;
-        this.roles = Collections.unmodifiableSet(sortAuthorities(roles));
-        this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
     }
 
-    private Set<? extends GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        if (CollectionUtils.isEmpty(authorities)) {
-            return Collections.emptySet();
-        }
-        Set<GrantedAuthority> sortedAuthorities = new HashSet<>();
-        for (GrantedAuthority grantedAuthority : authorities) {
-            Assert.notNull(grantedAuthority, "角色/权限不能为空！");
-            sortedAuthorities.add(grantedAuthority);
-        }
+    // private Set<? extends GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
+    //     if (CollectionUtils.isEmpty(authorities)) {
+    //         return Collections.emptySet();
+    //     }
+    //     Set<GrantedAuthority> sortedAuthorities = new HashSet<>();
+    //     for (GrantedAuthority grantedAuthority : authorities) {
+    //         Assert.notNull(grantedAuthority, "角色/权限不能为空！");
+    //         sortedAuthorities.add(grantedAuthority);
+    //     }
+    //
+    //     return sortedAuthorities;
+    // }
 
-        return sortedAuthorities;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getPassword() {
+        return "";
     }
 
     @Override

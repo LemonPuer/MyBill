@@ -1,5 +1,6 @@
 package org.lemon.config.filter;
 
+import cn.hutool.core.util.StrUtil;
 import org.lemon.utils.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,21 +33,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
         String token = extractToken(request);
-
-        if (token != null && JwtUtil.validateToken(token)) {
-            String username = JwtUtil.extractUserInfo(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities()
-            );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (StrUtil.isBlank(token)) {
+            filterChain.doFilter(request, response);
+            return;
         }
-
+        String username = JwtUtil.extractUserInfo(token);
+        if (StrUtil.isBlank(username)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }
 
