@@ -151,10 +151,7 @@ public class AppController {
     @PostMapping("delAccount")
     public ApiResp<Boolean> delAccount(@Validated @RequestBody ApiReq<IdReq> req) {
         Integer id = req.getData().getId();
-        return ApiResp.ok(accountsService.updateChain()
-                .eq(Accounts::getId, id)
-                .or(Accounts::getPid).eq(id)
-                .remove());
+        return ApiResp.ok(accountsService.delAccount(req.getData().getId()));
     }
 
     /**
@@ -185,6 +182,7 @@ public class AppController {
      * @param req
      * @return
      */
+    @PostMapping("saveEmailRemain")
     public ApiResp<Boolean> saveEmailRemain(@Validated @RequestBody ApiReq<EmailRemainReq> req) {
         return ApiResp.ok(emailRemainService.saveOrUpdateEmailRemain(req.getData()));
     }

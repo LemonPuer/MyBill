@@ -2,7 +2,6 @@ package org.lemon.entity.resp;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**

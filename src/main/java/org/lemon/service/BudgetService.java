@@ -38,11 +38,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class BudgetService extends ServiceImpl<BudgetMapper, Budget> {
 
-    private final CategoryMapper categoryMapper;
-    private final FinanceTransactionsMapper financeTransactionsMapper;
     @Resource(name = "commonExecutor")
     private final ThreadPoolTaskExecutor executor;
-    private final MonthTotalRecordMapper monthTotalRecordMapper;
+    private final CategoryMapper categoryMapper;
+    private final FinanceTransactionsMapper financeTransactionsMapper;
+
 
     public List<BudgetInfoVO> getBudgetInfo(TimeFrameReq data) {
         Integer userId = UserUtil.getCurrentUserId();

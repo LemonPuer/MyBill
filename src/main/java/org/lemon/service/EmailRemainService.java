@@ -11,7 +11,6 @@ import org.lemon.mapper.EmailRemainMapper;
 import org.lemon.utils.UserUtil;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;

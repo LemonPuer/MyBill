@@ -1,8 +1,12 @@
 package org.lemon.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.core.update.UpdateChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import lombok.AllArgsConstructor;
 import org.lemon.entity.Accounts;
+import org.lemon.entity.FinanceTransactions;
+import org.lemon.entity.MonthTotalRecord;
 import org.lemon.entity.exception.BusinessException;
 import org.lemon.entity.req.AccountReq;
 import org.lemon.entity.resp.AccountVO;
@@ -10,6 +14,8 @@ import org.lemon.enumeration.AccountCategoryEnum;
 import org.lemon.enumeration.AccountTypeEnum;
 import org.lemon.enumeration.IBaseEnum;
 import org.lemon.mapper.AccountsMapper;
+import org.lemon.mapper.FinanceTransactionsMapper;
+import org.lemon.mapper.MonthTotalRecordMapper;
 import org.lemon.utils.UserUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +33,11 @@ import java.util.stream.Collectors;
  * @since 2025-05-17
  */
 @Service
+@AllArgsConstructor
 public class AccountsService extends ServiceImpl<AccountsMapper, Accounts> {
+
+    private final MonthTotalRecordMapper monthTotalRecordMapper;
+    private final FinanceTransactionsMapper financeTransactionsMapper;
 
     public List<AccountVO> getAccounts() {
         Integer userId = UserUtil.getCurrentUserId();
@@ -71,5 +82,25 @@ public class AccountsService extends ServiceImpl<AccountsMapper, Accounts> {
             }
             return saveOrUpdate(result);
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean delAccount(Integer id) {
+        Integer userId = UserUtil.getCurrentUserId();
+        // 校验
+        if (!queryChain().eq(Accounts::getId, id).eq(Accounts::getUserId, userId).exists()) {
+            throw new BusinessException("账户不存在！");
+        }
+        Set<Integer> ids = queryChain().eq(Accounts::getPid, id).list().stream().map(Accounts::getId).collect(Collectors.toSet());
+        ids.add(id);
+        // 1.删除账户
+        removeByIds(ids);
+        // 2.删除账户绑定的账单信息
+        UpdateChain.of(financeTransactionsMapper).in(FinanceTransactions::getAccountId, ids).remove();
+        // 3.设置月度账单重新统计
+        UpdateChain.of(monthTotalRecordMapper).set(MonthTotalRecord::getRepeat, true)
+                .eq(MonthTotalRecord::getUserId, userId)
+                .update();
+        return true;
     }
 }
