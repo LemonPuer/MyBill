@@ -1,8 +1,9 @@
-package org.lemon.entity.resp;
+package org.lemon.entity.req;
 
-import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Date;
 
 /**
@@ -10,11 +11,10 @@ import java.sql.Date;
  *
  * @author Lemon
  * @version 1.0.0
- * @date 2025/05/18 00:00:30
+ * @date 2025/05/18 14:03:15
  */
 @Data
-@Builder
-public class EmailRemainVO {
+public class EmailRemainReq {
 
     /**
      * 主键
@@ -24,26 +24,25 @@ public class EmailRemainVO {
     /**
      * 提醒名称
      */
+    @NotBlank(message = "提醒名称不能为空!")
     private String title;
 
     /**
      * 金额
      */
+    @NotBlank(message = "金额不能为空!")
     private String amount;
 
     /**
      * 提醒类型;EmailRemainEnum
      */
+    @NotNull(message = "提醒类型不能为空!")
     private Integer type;
-
-    /**
-     * 提醒类型；EmailRemainEnum
-     */
-    private String typeStr;
 
     /**
      * 提醒时间
      */
+    @NotNull(message = "提醒时间不能为空!")
     private Date remainDate;
 
     /**
@@ -51,8 +50,4 @@ public class EmailRemainVO {
      */
     private String remark;
 
-    /**
-     * 相差时间(小时)
-     */
-    private Long durationBetweenNow;
 }

@@ -3,6 +3,7 @@ package org.lemon.entity;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -57,6 +58,11 @@ public class MonthTotalRecord implements Serializable {
      * 月度结余
      */
     private BigDecimal totalBalance;
+
+    /**
+     * 是否需要重新计算
+     */
+    private Boolean repeat;
 
     /**
      * 创建时间

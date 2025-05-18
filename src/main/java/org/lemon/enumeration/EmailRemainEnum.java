@@ -3,7 +3,7 @@ package org.lemon.enumeration;
 import lombok.Getter;
 
 /**
- * 提醒类型
+ * 提醒周期类型
  *
  * @author Lemon
  * @version 1.0.0

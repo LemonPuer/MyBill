@@ -1,11 +1,13 @@
 package org.lemon.service;
 
+import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lemon.entity.Accounts;
 import org.lemon.entity.FinancialObjectives;
 import org.lemon.entity.resp.FinancialObjectivesVO;
+import org.lemon.mapper.AccountsMapper;
 import org.lemon.mapper.FinancialObjectivesMapper;
 import org.lemon.utils.UserUtil;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -29,12 +31,12 @@ public class FinancialObjectivesService extends ServiceImpl<FinancialObjectivesM
 
     @Resource(name = "commonExecutor")
     private final ThreadPoolTaskExecutor executor;
-    private final AccountsService accountsService;
+    private final AccountsMapper accountsMapper;
 
     public List<FinancialObjectivesVO> getFinancialObjectives() {
         Integer userId = UserUtil.getCurrentUserId();
         // 查询账户计算余额
-        CompletableFuture<Double> future = CompletableFuture.supplyAsync(() -> accountsService.queryChain()
+        CompletableFuture<Double> future = CompletableFuture.supplyAsync(() -> QueryChain.of(accountsMapper)
                 .eq(Accounts::getUserId, userId).list()
                 .stream().mapToDouble(o -> o.getAmount().doubleValue()).sum(), executor);
         List<FinancialObjectives> list = queryChain().eq(FinancialObjectives::getUserId, userId)

@@ -48,6 +48,7 @@ public class AccountsService extends ServiceImpl<AccountsMapper, Accounts> {
 
     @Transactional(rollbackFor = Exception.class)
     public Boolean saveOrUpdateAccount(AccountReq data) {
+        Integer userId = UserUtil.getCurrentUserId();
         Accounts result = data.toAccounts();
         // 查询是否存在子类，单机加锁
         synchronized (this) {
@@ -57,8 +58,16 @@ public class AccountsService extends ServiceImpl<AccountsMapper, Accounts> {
             }
             if (result.getPid() != null && result.getPid() != 0) {
                 Accounts accounts = Optional.ofNullable(getById(result.getPid())).orElseThrow(() -> new BusinessException("父账户不存在！"));
+                if (accounts.getHierarchy() > 1) {
+                    throw new BusinessException("账户层级不能超过2级！");
+                }
                 accounts.setAmount(BigDecimal.ZERO);
                 updateById(accounts);
+            }
+            if (data.getId() != null && data.getId() > 0) {
+                result.setUpdateNo(userId);
+            } else {
+                result.setCreateNo(userId);
             }
             return saveOrUpdate(result);
         }

@@ -3,8 +3,6 @@ package org.lemon.entity.resp;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 /**
  * description: add a description
  *
@@ -15,6 +13,11 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class BudgetInfoVO {
+
+    /**
+     * 主键
+     */
+    private Integer id;
 
     /**
      * 分类

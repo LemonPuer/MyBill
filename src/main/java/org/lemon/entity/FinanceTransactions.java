@@ -31,7 +31,7 @@ public class FinanceTransactions implements Serializable {
      * 主键
      */
     @Id(keyType = KeyType.Auto)
-    private Long id;
+    private Integer id;
 
     /**
      * 关联用户ID
@@ -76,7 +76,7 @@ public class FinanceTransactions implements Serializable {
     /**
      * 创建人
      */
-    private Long createNo;
+    private Integer createNo;
 
     /**
      * 更新时间
@@ -86,6 +86,6 @@ public class FinanceTransactions implements Serializable {
     /**
      * 更新人
      */
-    private Long updateNo;
+    private Integer updateNo;
 
 }

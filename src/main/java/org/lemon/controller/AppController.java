@@ -1,13 +1,12 @@
 package org.lemon.controller;
 
 import lombok.AllArgsConstructor;
+import org.lemon.entity.Accounts;
 import org.lemon.entity.common.ApiReq;
 import org.lemon.entity.common.ApiResp;
+import org.lemon.entity.common.IdReq;
 import org.lemon.entity.common.PageResp;
-import org.lemon.entity.req.AccountReq;
-import org.lemon.entity.req.ConsumerTrendsReq;
-import org.lemon.entity.req.FinanceTransactionsQueryReq;
-import org.lemon.entity.req.TimeFrameReq;
+import org.lemon.entity.req.*;
 import org.lemon.entity.resp.*;
 import org.lemon.service.*;
 import org.springframework.validation.annotation.Validated;
@@ -60,7 +59,7 @@ public class AppController {
     }
 
     /**
-     * 获取预算信息
+     * 获取预算列表
      *
      * @return
      */
@@ -101,6 +100,28 @@ public class AppController {
     }
 
     /**
+     * 新增/编辑账单
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("saveFinanceTransactions")
+    public ApiResp<Boolean> saveFinanceTransactions(@Validated @RequestBody ApiReq<FinanceTransactionsReq> req) {
+        return ApiResp.ok(financeTransactionsService.saveOrUpdateFinanceTransactions(req.getData()));
+    }
+
+    /**
+     * 删除账单
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("delFinanceTransactions")
+    public ApiResp<Boolean> delFinanceTransactions(@Validated @RequestBody ApiReq<IdReq> req) {
+        return ApiResp.ok(financeTransactionsService.delFinanceTransactions(req.getData().getId()));
+    }
+
+    /**
      * 获取账户列表
      *
      * @return
@@ -111,7 +132,7 @@ public class AppController {
     }
 
     /**
-     * 保存/编辑账户
+     * 新增/编辑账户
      *
      * @param req
      * @return
@@ -121,4 +142,61 @@ public class AppController {
         return ApiResp.ok(accountsService.saveOrUpdateAccount(req.getData()));
     }
 
+    /**
+     * 删除账户
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("delAccount")
+    public ApiResp<Boolean> delAccount(@Validated @RequestBody ApiReq<IdReq> req) {
+        Integer id = req.getData().getId();
+        return ApiResp.ok(accountsService.updateChain()
+                .eq(Accounts::getId, id)
+                .or(Accounts::getPid).eq(id)
+                .remove());
+    }
+
+    /**
+     * 新增/编辑预算
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("saveBudget")
+    public ApiResp<Boolean> saveBudget(@Validated @RequestBody ApiReq<BudgetReq> req) {
+        return ApiResp.ok(budgetService.saveOrUpdateBudget(req.getData()));
+    }
+
+    /**
+     * 删除预算
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("delBudget")
+    public ApiResp<Boolean> delBudget(@Validated @RequestBody ApiReq<IdReq> req) {
+        return ApiResp.ok(budgetService.removeById(req.getData().getId()));
+    }
+
+    /**
+     * 新增/编辑提醒
+     *
+     * @param req
+     * @return
+     */
+    public ApiResp<Boolean> saveEmailRemain(@Validated @RequestBody ApiReq<EmailRemainReq> req) {
+        return ApiResp.ok(emailRemainService.saveOrUpdateEmailRemain(req.getData()));
+    }
+
+    /**
+     * 删除提醒
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("delEmailRemain")
+    public ApiResp<Boolean> delEmailRemain(@Validated @RequestBody ApiReq<IdReq> req) {
+        return ApiResp.ok(emailRemainService.removeById(req.getData().getId()));
+    }
 }

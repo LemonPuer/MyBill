@@ -3,10 +3,11 @@ CREATE TABLE `tt_month_total_record`
     `id`            int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
     `user_id`       INT            NOT NULL COMMENT '关联用户ID',
     `month`         VARCHAR(16)    NOT NULL COMMENT '月份',
-    `total_income`  DECIMAL(12, 2) NOT NULL COMMENT '收入金额',
-    `total_expense` DECIMAL(12, 2) NOT NULL COMMENT '支出金额',
-    `total_balance` DECIMAL(12, 2) NOT NULL COMMENT '月度结余',
-    `created_at`    datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `total_income`  DECIMAL(12, 2) NOT NULL default 0.0 COMMENT '收入金额',
+    `total_expense` DECIMAL(12, 2) NOT NULL default 0.0 COMMENT '支出金额',
+    `total_balance` DECIMAL(12, 2) NOT NULL default 0.0 COMMENT '月度结余',
+    `repeat`        TINYINT(1) NOT NULL default 0 COMMENT '是否重复',
+    `created_at`    datetime                DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     primary key (id),
     unique key uniq_user_month(user_id, month)
 ) COMMENT='月度总收支记录表';
