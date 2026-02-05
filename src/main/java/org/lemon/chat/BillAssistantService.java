@@ -1,6 +1,7 @@
 package org.lemon.chat;
 
 import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import dev.langchain4j.service.spring.AiService;
 import org.lemon.entity.dto.ChatFinanceTransactionsDTO;
@@ -19,5 +20,5 @@ public interface BillAssistantService {
 
 
     @SystemMessage("{{prompt}}")
-    ChatFinanceTransactionsDTO billMessageChat(@V("prompt") String systemPrompt, String message);
+    ChatFinanceTransactionsDTO billMessageChat(@V("prompt") String systemPrompt, @UserMessage String message);
 }
