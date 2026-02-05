@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBill - 账号安全提醒</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            max-height: 60px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .alert-box {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 3px;
+        }
+        .details {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 3px;
+            margin: 20px 0;
+        }
+        .details-item {
+            margin-bottom: 10px;
+        }
+        .details-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://example.com/mybill-logo.png" alt="MyBill Logo" class="logo">
+            <h1>账号安全提醒</h1>
+        </div>
+        
+        <div class="content">
+            <p>尊敬的用户：</p>
+            
+            <p>我们检测到您的MyBill账号刚刚在一台新设备上登录。如果这是您本人操作，请忽略此邮件。</p>
+            
+            <div class="alert-box">
+                <p><strong>⚠️ 安全提示：</strong>如果这不是您本人的操作，您的账号可能已被他人获取，请立即<a href="#change-password">修改密码</a>并联系客服。</p>
+            </div>
+            
+            <div class="details">
+                <h3>登录详情：</h3>
+                <div class="details-item">
+                    <span class="details-label">登录时间：</span>
+                    <span>{{loginTime}}</span>
+                </div>
+                <div class="details-item">
+                    <span class="details-label">登录账号：</span>
+                    <span>{{userName}}</span>
+                </div>
+                <div class="details-item">
+                    <span class="details-label">设备ID：</span>
+                    <span>{{deviceId}}</span>
+                </div>
+            </div>
+            
+            <p>为了保障您的账户安全，我们建议您：</p>
+            <ul>
+                <li>定期更换密码</li>
+                <li>不要与他人分享您的账号信息</li>
+                <li>开启两步验证</li>
+                <li>不要在公共设备上保存登录状态</li>
+            </ul>
+            
+            <div style="text-align: center;">
+                <a href="#change-password" class="button" id="change-password">立即修改密码</a>
+            </div>
+            
+            <p>如有任何疑问，请联系我们的客服团队：<a href="mailto:support@mybill.com">support@mybill.com</a></p>
+        </div>
+        
+        <div class="footer">
+            <p>此邮件由系统自动发送，请勿直接回复</p>
+            <p>&copy; 2023 MyBill. 保留所有权利。</p>
+        </div>
+    </div>
+</body>
+</html>

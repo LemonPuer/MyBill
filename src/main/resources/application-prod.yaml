@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: bill-service
+  config:
+    import:
+      - nacos:bill-service-prod.yaml?group=DEFAULT_GROUP
+      - nacos:logback-spring.xml?group=DEFAULT_GROUP
+  nacos:
+    config:
+      server-addr: 192.168.31.100:8848
+      file-extension: yaml
+      username: common
+      password: 123456
+      refresh-enabled: true
