@@ -1,16 +1,17 @@
 package org.lemon.controller;
 
-import com.alibaba.fastjson2.JSONObject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lemon.chat.BillAssistantService;
 import org.lemon.entity.common.ApiResp;
 import org.lemon.entity.common.TelegramBillMessageParam;
+import org.lemon.entity.dto.ChatFinanceTransactionsDTO;
 import org.lemon.service.FinanceTransactionsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 
 /**
@@ -35,7 +36,8 @@ public class OpenApiController {
      */
     @PostMapping("/telegram/billMessage")
     public ApiResp<?> handleWebhook(@RequestBody TelegramBillMessageParam param) {
-        financeTransactionsService.saveBillAssistant(param);
+        Map<Integer, ChatFinanceTransactionsDTO> userMessage = financeTransactionsService.analysisMessage(param.getChatId(), param.getText());
+        financeTransactionsService.save(userMessage);
         return ApiResp.ok();
     }
 }

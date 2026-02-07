@@ -42,12 +42,6 @@ public class AccountReq {
     private String accountName;
 
     /**
-     * 分类，余额/理财/活期等
-     */
-    @NotNull(message = "分类不能为空！")
-    private Integer accountCategory;
-
-    /**
      * 金额
      */
     @NotNull(message = "金额不能为空！")
@@ -58,7 +52,6 @@ public class AccountReq {
                 .userId(UserUtil.getCurrentUserId())
                 .accountType(accountType)
                 .accountName(accountName)
-                .accountCategory(accountCategory)
                 .build();
         result.setCreateNo(UserUtil.getCurrentUserId());
         if (amount != null && amount > 0) {

@@ -11,7 +11,6 @@ import org.lemon.entity.exception.BusinessException;
 import org.lemon.entity.req.AccountReq;
 import org.lemon.entity.resp.AccountVO;
 import org.lemon.entity.resp.CommonDicVO;
-import org.lemon.enumeration.AccountCategoryEnum;
 import org.lemon.enumeration.AccountTypeEnum;
 import org.lemon.enumeration.IBaseEnum;
 import org.lemon.mapper.AccountsMapper;
@@ -47,7 +46,6 @@ public class AccountsService extends ServiceImpl<AccountsMapper, Accounts> {
                     if (Objects.equals(o.getPid(), pid == null ? 0 : pid)) {
                         return AccountVO.builder().id(o.getId()).pid(o.getPid())
                                 .accountType(IBaseEnum.getValueByKey(AccountTypeEnum.class, o.getAccountType()))
-                                .accountCategory(IBaseEnum.getValueByKey(AccountCategoryEnum.class, o.getAccountCategory()))
                                 .amount(o.getAmount().doubleValue()).accountName(o.getAccountName())
                                 .build();
                     } else {

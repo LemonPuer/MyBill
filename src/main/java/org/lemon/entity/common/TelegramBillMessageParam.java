@@ -3,6 +3,8 @@ package org.lemon.entity.common;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.Optional;
+
 /**
  * description: add a description
  *
@@ -30,6 +32,13 @@ public class TelegramBillMessageParam {
             return "";
         }
         return channelPost.getText();
+    }
+
+    public String getChatId() {
+        if (channelPost == null) {
+            return "";
+        }
+        return Optional.ofNullable(channelPost.getChat()).map(Chat::getId).orElse("");
     }
 
     @Data

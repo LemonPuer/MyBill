@@ -37,7 +37,7 @@ public class Codegen {
         // 设置表前缀和只生成哪些表，setGenerateTable 未配置时，生成所有表
         globalConfig.getStrategyConfig()
                 .setTablePrefix("tt_")
-                .setGenerateTable("tt_financial_objectives");
+                .setGenerateTable("tt_ai_retry_task");
 
         // 设置生成 entity 并启用 Lombok
         globalConfig.enableEntity().setWithLombok(true)
@@ -51,7 +51,10 @@ public class Codegen {
 
         // globalConfig.enableService().setOverwriteEnable(true);
 
-        globalConfig.enableServiceImpl().setOverwriteEnable(true);
+        globalConfig.enableServiceImpl()
+                .setSuperClass(null)
+                .setOverwriteEnable(true)
+                .setSourceDir("service");
 
         // globalConfig.enableController().setOverwriteEnable(true);
 

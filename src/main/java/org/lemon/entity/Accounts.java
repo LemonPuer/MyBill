@@ -59,11 +59,6 @@ public class Accounts implements Serializable {
     private String accountName;
 
     /**
-     * 分类，AccountCategoryEnum
-     */
-    private Integer accountCategory;
-
-    /**
      * 金额
      */
     private BigDecimal amount;

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI任务处理失败通知</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 30px;
+        }
+        .alert-box {
+            background-color: #fff3f3;
+            border-left: 4px solid #ff6b6b;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .details-table th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+            font-weight: bold;
+        }
+        .details-table td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .contact-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-left: 4px solid #28a745;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 AI任务处理失败通知</h1>
+        </div>
+        
+        <div class="content">
+            <p>尊敬的 {{userName}}：</p>
+            
+            <p>很抱歉地通知您，您的AI任务处理多次尝试后仍然失败。以下是详细信息：</p>
+            
+            <div class="alert-box">
+                <strong>⚠️ 重要提醒：</strong>
+                <br>系统已自动记录此问题，技术团队会尽快排查原因并解决。
+            </div>
+            
+            <table class="details-table">
+                <tr>
+                    <th>任务类型</th>
+                    <td>{{taskType}}</td>
+                </tr>
+                <tr>
+                    <th>任务ID</th>
+                    <td>{{taskId}}</td>
+                </tr>
+                <tr>
+                    <th>失败时间</th>
+                    <td>{{failureTime}}</td>
+                </tr>
+                <tr>
+                    <th>重试次数</th>
+                    <td>已达到最大重试次数</td>
+                </tr>
+            </table>
+            
+            <h3>错误详情：</h3>
+            <div class="error-message">{{errorMessage}}</div>
+            
+            <div class="contact-info">
+                <h3>💡 建议操作：</h3>
+                <ul>
+                    <li>您可以稍后重新提交相同任务</li>
+                    <li>检查输入数据格式是否正确</li>
+                    <li>如问题持续存在，请联系技术支持</li>
+                </ul>
+            </div>
+            
+            <p>我们对由此带来的不便深表歉意，感谢您的理解与支持！</p>
+        </div>
+        
+        <div class="footer">
+            <p>此邮件由系统自动发送，请勿直接回复</p>
+            <p>如需帮助，请联系：support@mybill.com</p>
+            <p>&copy; 2026 Lemon Bill. 保留所有权利。</p>
+        </div>
+    </div>
+</body>
+</html>

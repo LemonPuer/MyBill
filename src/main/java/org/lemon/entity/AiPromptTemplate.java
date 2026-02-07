@@ -1,24 +1,31 @@
 package org.lemon.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import lombok.Builder;
-import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
- * 用户信息表 实体类。
+ * AI提示词模板表 实体类。
  *
  * @author Lemon
- * @since 2024-10-01
+ * @since 2026-02-07
  */
 @Data
 @Builder
-@Table("tt_user")
-public class User implements Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+@Table("ai_prompt_template")
+public class AiPromptTemplate implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,34 +36,25 @@ public class User implements Serializable {
     private Integer id;
 
     /**
-     * 用户名
+     * 提示词主题
      */
-    private String username;
+    private String theme;
 
     /**
-     * 邮件地址
+     * 提示词内容
      */
-    private String email;
+    private String content;
 
     /**
-     * 密码
+     * 版本号
      */
-    private String password;
+    @Column(version = true)
+    private Integer version;
 
     /**
-     * 头像地址
+     * 状态：1-启用，0-禁用
      */
-    private String avatarUrl;
-
-    /**
-     * 描述
-     */
-    private String description;
-
-    /**
-     * 频道id
-     */
-    private String channelId;
+    private Integer status;
 
     /**
      * 创建时间

@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.lemon.utils.SystemConstants.SYSTEM_NAME;
+import static org.lemon.service.definition.SystemConstants.SYSTEM_NAME;
 
 /**
  * 邮件发送服务

@@ -34,11 +34,6 @@ public class AccountVO {
     private String accountName;
 
     /**
-     * 分类，余额/理财/活期等
-     */
-    private String accountCategory;
-
-    /**
      * 金额
      */
     private Double amount;

@@ -12,35 +12,35 @@ import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lemon.chat.BillAssistantService;
-import org.lemon.entity.Accounts;
-import org.lemon.entity.Category;
-import org.lemon.entity.FinanceTransactions;
-import org.lemon.entity.MonthTotalRecord;
-import org.lemon.entity.common.TelegramBillMessageParam;
+import org.lemon.entity.*;
 import org.lemon.entity.dto.ChatFinanceTransactionsDTO;
+import org.lemon.entity.dto.RetryTaskTypeResultDTO;
+import org.lemon.entity.dto.UserPromptInfoDTO;
 import org.lemon.entity.exception.BusinessException;
 import org.lemon.entity.req.ConsumerTrendsReq;
 import org.lemon.entity.req.FinanceTransactionsQueryReq;
 import org.lemon.entity.req.FinanceTransactionsReq;
 import org.lemon.entity.req.TimeFrameReq;
-import org.lemon.entity.resp.CashFlowCardVO;
-import org.lemon.entity.resp.ConsumptionStatisticsVO;
-import org.lemon.entity.resp.FinanceTransactionsVO;
+import org.lemon.entity.resp.*;
+import org.lemon.entity.table.CategoryTableDef;
 import org.lemon.enumeration.AmountTypeEnum;
-import org.lemon.mapper.AccountsMapper;
-import org.lemon.mapper.CategoryMapper;
-import org.lemon.mapper.FinanceTransactionsMapper;
-import org.lemon.mapper.MonthTotalRecordMapper;
+import org.lemon.enumeration.RetryTaskTypeEnum;
+import org.lemon.mapper.*;
+import org.lemon.service.definition.RetryTaskDefinition;
 import org.lemon.utils.UserUtil;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.lemon.enumeration.RetryTaskTypeEnum.TELEGRAM_BILL_PARSE;
+import static org.lemon.service.definition.SystemConstants.CONSUMPTION_RECORDS_ASSISTANT;
 
 /**
  * 账单信息表 服务层实现。
@@ -51,15 +51,61 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsMapper, FinanceTransactions> {
+public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsMapper, FinanceTransactions> implements RetryTaskDefinition {
 
     @Resource(name = "commonExecutor")
     private ThreadPoolTaskExecutor executor;
+    private final UserMapper userMapper;
     private final AccountsMapper accountsMapper;
     private final CategoryMapper categoryMapper;
     private final MonthTotalRecordMapper monthTotalRecordMapper;
 
     private final BillAssistantService billAssistantService;
+    private final AiPromptTemplateService aiPromptTemplateService;
+    private final RetryTaskService retryTaskService;
+
+    private final TransactionTemplate transactionTemplate;
+
+    @Override
+    public RetryTaskTypeEnum getType() {
+        return TELEGRAM_BILL_PARSE;
+    }
+
+    @Override
+    public RetryTaskTypeResultDTO execute(Integer userId, String taskData) {
+        RetryTaskTypeResultDTO result = new RetryTaskTypeResultDTO();
+        User user = userMapper.selectOneById(userId);
+        if (user == null) {
+            result.setData("用户不存在！");
+            return result;
+        }
+        Boolean execute;
+        try {
+            Map<Integer, String> promptMap = aiPromptTemplateService.getPromptDetail(CONSUMPTION_RECORDS_ASSISTANT, getUserPromptInfo(List.of(user)));
+            if (CollUtil.isEmpty(promptMap)) {
+                result.setData("用户信息不全！");
+            }
+            Map<Integer, ChatFinanceTransactionsDTO> userBillMap = HashMap.newHashMap(promptMap.size());
+            promptMap.forEach((key, value) -> {
+                try {
+                    userBillMap.put(key, billAssistantService.billMessageChat(value, taskData));
+                } catch (Exception e) {
+                    log.error("Telegram ai bill message error:{}", e.getMessage(), e);
+                }
+            });
+            String data = JSONObject.toJSONString(userBillMap.get(userId));
+            execute = transactionTemplate.execute(status -> save(userBillMap));
+            if (Boolean.TRUE.equals(execute)) {
+                result.setSuccess(true);
+                result.setData(data);
+            } else {
+                result.setData("保存失败，数据：" + data);
+            }
+        } catch (Exception e) {
+            result.setData(e.getMessage());
+        }
+        return result;
+    }
 
 
     public List<CashFlowCardVO> getCashFlowCard(TimeFrameReq data) {
@@ -193,38 +239,46 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
         return result;
     }
 
-    public void saveBillAssistant(TelegramBillMessageParam param) {
-        if (StrUtil.isBlank(param.getText())) {
-            log.error("Telegram ai bill message is empty!");
+    public Map<Integer, ChatFinanceTransactionsDTO> analysisMessage(String chatId, String text) {
+        if (StrUtil.isBlank(text)) {
+            log.error("消息不能为空");
         }
-        ChatFinanceTransactionsDTO dto = billAssistantService.billMessageChat("""
-                你是消费记录解析助手。将用户的自然语言消费描述解析为结构化数据。
-                
-                金额类型：{"AmountType":[{"key":1,"value":"收入"},{"key":2,"value":"支出"},{"key":3,"value":"结余"}]}
-                支出分类：[{"id":4,"category":"交通","icon":"Failed"},{"id":3,"category":"娱乐","icon":"SwitchFilled"},{"id":2,"category":"餐饮","icon":"ForkSpoon"},{"id":1,"category":"购物","icon":"Goods"}]
-                
-                解析规则：
-                1. amountType：判断消息表达的金钱流向
-                   - 支出含义（用户花钱）→ "2"
-                   - 收入含义（用户获得钱）→ "1"
-                   - 结余含义（账户余额状态）→ "3"
-                
-                2. amount：提取数字金额，无则返回null
-                
-                3. categoryId：仅amountType="2"时填充
-                   - 根据消息内容匹配分类
-                   - 无法确定或多分类时返回null
-                   - amountType="1"或"3"时返回null
-                
-                4. note：保留原始用户输入
-                
-                返回JSON：{"amountType":"","amount":,"categoryId":,"note":""}
-                
-                示例：
-                - "吃饭花了25元" → {"amountType":"2","amount":25,"categoryId":2,"note":"吃饭花了25元"}
-                - "买水果花了10元" → {"amountType":"2","amount":10,"categoryId":1,"note":"买水果花了10元"}
-                - "赚了5000元" → {"amountType":"1","amount":5000,"categoryId":null,"note":"赚了5000元"}
-                """, param.getText());
-        log.info("Telegram ai bill message result: {}", JSONObject.toJSONString(dto));
+        List<User> list = QueryChain.of(userMapper).eq(User::getChannelId, chatId).list();
+        if (CollUtil.isEmpty(list)) {
+            log.error("频道id不存在：{}", chatId);
+            return Collections.emptyMap();
+        }
+        Map<Integer, String> promptMap = aiPromptTemplateService.getPromptDetail(CONSUMPTION_RECORDS_ASSISTANT, getUserPromptInfo(list));
+        Map<Integer, ChatFinanceTransactionsDTO> userBillMap = HashMap.newHashMap(promptMap.size());
+        promptMap.forEach((key, value) -> {
+            try {
+                userBillMap.put(key, billAssistantService.billMessageChat(value, text));
+            } catch (Exception e) {
+                log.error("Telegram ai bill message error:{}", e.getMessage(), e);
+                retryTaskService.createRetryTask(TELEGRAM_BILL_PARSE, text, key);
+            }
+        });
+        return userBillMap;
+    }
+
+    private List<UserPromptInfoDTO> getUserPromptInfo(List<User> list) {
+        List<UserPromptInfoDTO> result = new ArrayList<>();
+        for (User user : list) {
+            UserPromptInfoDTO dto = new UserPromptInfoDTO();
+            dto.setUserId(user.getId());
+            dto.setCategories(QueryChain.of(categoryMapper)
+                    .select(CategoryTableDef.CATEGORY.ID.as("key"), CategoryTableDef.CATEGORY.CATEGORY_.as("value"))
+                    .eq(Category::getUserId, user.getId()).listAs(SimpleEnumVO.class));
+            // 近三月的月度总收支记录
+            dto.setMonthTotalRecords(QueryChain.of(monthTotalRecordMapper).eq(MonthTotalRecord::getUserId, user.getId())
+                    .orderBy(MonthTotalRecord::getMonth, false).limit(3)
+                    .listAs(MonthTotalRecordVO.class));
+        }
+        return result;
+    }
+
+    public boolean save(Map<Integer, ChatFinanceTransactionsDTO> userMessage) {
+        // ZFH TODO : 2026/2/7
+        return true;
     }
 }
