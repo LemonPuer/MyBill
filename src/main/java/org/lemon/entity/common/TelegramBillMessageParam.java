@@ -3,6 +3,9 @@ package org.lemon.entity.common;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 /**
@@ -39,6 +42,13 @@ public class TelegramBillMessageParam {
             return "";
         }
         return Optional.ofNullable(channelPost.getChat()).map(Chat::getId).orElse("");
+    }
+
+    public LocalDateTime getDate() {
+        if (channelPost == null) {
+            return null;
+        }
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(channelPost.getDate()), ZoneId.systemDefault());
     }
 
     @Data

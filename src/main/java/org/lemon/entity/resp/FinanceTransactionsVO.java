@@ -46,11 +46,6 @@ public class FinanceTransactionsVO {
     private LocalDateTime transactionDate;
 
     /**
-     * 账户
-     */
-    private String account;
-
-    /**
      * 备注详情
      */
     private String note;

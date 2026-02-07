@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.lemon.entity.AiPromptTemplate;
 import org.lemon.entity.dto.UserPromptInfoDTO;
 import org.lemon.mapper.AiPromptTemplateMapper;
-import org.lemon.mapper.CategoryMapper;
-import org.lemon.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,7 +27,7 @@ public class AiPromptTemplateService extends ServiceImpl<AiPromptTemplateMapper,
 
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{\\{([^}]+)\\}\\}");
 
-    public Map<Integer, String> getPromptDetail(String theme, List<UserPromptInfoDTO> dtoList) {
+    public Map<Integer, String> getPromptDetail(String theme, Collection<UserPromptInfoDTO> dtoList) {
         if (CollUtil.isEmpty(dtoList)) {
             return Collections.emptyMap();
         }

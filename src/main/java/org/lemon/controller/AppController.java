@@ -26,7 +26,6 @@ import java.util.List;
 public class AppController {
 
     private final BudgetService budgetService;
-    private final AccountsService accountsService;
     private final CategoryService categoryService;
     private final EmailRemainService emailRemainService;
     private final MonthTotalRecordService monthTotalRecordService;
@@ -109,15 +108,15 @@ public class AppController {
         return PageResp.ok(categoryService.getCategory(req.getData()));
     }
 
-    /**
-     * 获取财务目标
-     *
-     * @return
-     */
-    @PostMapping("financialObjectives")
-    public PageResp<FinancialObjectivesVO> getFinancialObjectives(@Validated @RequestBody ApiReq<BasePage> req) {
-        return PageResp.ok(financialObjectivesService.getFinancialObjectives(req.getData()));
-    }
+    // /**
+    //  * 获取财务目标
+    //  *
+    //  * @return
+    //  */
+    // @PostMapping("financialObjectives")
+    // public PageResp<FinancialObjectivesVO> getFinancialObjectives(@Validated @RequestBody ApiReq<BasePage> req) {
+    //     return PageResp.ok(financialObjectivesService.getFinancialObjectives(req.getData()));
+    // }
 
     /**
      * 获取最近提醒
@@ -149,49 +148,6 @@ public class AppController {
     @PostMapping("delFinanceTransactions")
     public ApiResp<Boolean> delFinanceTransactions(@Validated @RequestBody ApiReq<IdReq> req) {
         return ApiResp.ok(financeTransactionsService.delFinanceTransactions(req.getData().getId()));
-    }
-
-    /**
-     * 获取账户列表
-     *
-     * @return
-     */
-    @PostMapping("getAccounts")
-    public ApiResp<List<AccountVO>> getAccounts(@Validated @RequestBody ApiReq<IdReq> req) {
-        return ApiResp.ok(accountsService.getAccounts(req.getData().getId()));
-    }
-
-    /**
-     * 获取账户树，用于级联选择
-     *
-     * @return
-     */
-    @PostMapping("getAccountTree")
-    public ApiResp<List<CommonDicVO>> getAccountTree() {
-        return ApiResp.ok(accountsService.getAccountTree());
-    }
-
-    /**
-     * 新增/编辑账户
-     *
-     * @param req
-     * @return
-     */
-    @PostMapping("saveAccount")
-    public ApiResp<Boolean> saveAccount(@Validated @RequestBody ApiReq<AccountReq> req) {
-        return ApiResp.ok(accountsService.saveOrUpdateAccount(req.getData()));
-    }
-
-    /**
-     * 删除账户
-     *
-     * @param req
-     * @return
-     */
-    @PostMapping("delAccount")
-    public ApiResp<Boolean> delAccount(@Validated @RequestBody ApiReq<IdReq> req) {
-        Integer id = req.getData().getId();
-        return ApiResp.ok(accountsService.delAccount(req.getData().getId()));
     }
 
     /**

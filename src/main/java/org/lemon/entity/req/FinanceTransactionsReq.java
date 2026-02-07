@@ -45,12 +45,6 @@ public class FinanceTransactionsReq {
     private LocalDateTime transactionDate;
 
     /**
-     * 关联账户ID
-     */
-    @NotNull(message = "关联账户不能为空!")
-    private Integer accountId;
-
-    /**
      * 备注详情
      */
     private String note;

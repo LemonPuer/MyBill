@@ -104,7 +104,7 @@ public class RetryTaskService extends ServiceImpl<RetryTaskMapper, RetryTask> {
                 .eq(RetryTask::getId, taskId)
                 .update();
         String errorMessage = "";
-        RetryTaskTypeResultDTO execute = new RetryTaskTypeResultDTO();
+        RetryTaskTypeResultDTO execute = new RetryTaskTypeResultDTO(false, "");
         try {
             // 执行重试逻辑
             execute = retryFunction.execute(task.getTaskData());
@@ -147,7 +147,7 @@ public class RetryTaskService extends ServiceImpl<RetryTaskMapper, RetryTask> {
     /**
      * 发送失败通知邮件
      *
-     * @param task      失败任务
+     * @param task         失败任务
      * @param errorMessage 异常信息
      */
     private void sendFailureNotification(RetryTask task, String errorMessage) {

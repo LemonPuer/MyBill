@@ -36,8 +36,7 @@ public class OpenApiController {
      */
     @PostMapping("/telegram/billMessage")
     public ApiResp<?> handleWebhook(@RequestBody TelegramBillMessageParam param) {
-        Map<Integer, ChatFinanceTransactionsDTO> userMessage = financeTransactionsService.analysisMessage(param.getChatId(), param.getText());
-        financeTransactionsService.save(userMessage);
+        financeTransactionsService.saveMessageBill(param);
         return ApiResp.ok();
     }
 }

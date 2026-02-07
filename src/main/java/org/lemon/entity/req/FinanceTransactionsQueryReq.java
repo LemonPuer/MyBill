@@ -26,11 +26,6 @@ public class FinanceTransactionsQueryReq extends BasePage {
     private Integer categoryId;
 
     /**
-     * 账户id
-     */
-    private Integer accountId;
-
-    /**
      * 开始时间
      */
     private LocalDateTime startTime;

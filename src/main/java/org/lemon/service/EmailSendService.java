@@ -45,6 +45,7 @@ public class EmailSendService {
 
     private static final String TEMPLATE_PATH = "classpath:email/";
 
+    @Deprecated
     public boolean sendEmail(EmailSendReq req) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {

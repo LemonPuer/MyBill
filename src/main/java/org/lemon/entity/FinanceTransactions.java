@@ -59,11 +59,6 @@ public class FinanceTransactions implements Serializable {
     private LocalDateTime transactionDate;
 
     /**
-     * 关联账户ID
-     */
-    private Integer accountId;
-
-    /**
      * 备注详情
      */
     private String note;
@@ -71,7 +66,7 @@ public class FinanceTransactions implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private LocalDateTime createTime;
 
     /**
      * 创建人

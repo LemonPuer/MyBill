@@ -1,7 +1,11 @@
 package org.lemon.service.definition;
 
+import org.lemon.entity.RetryTask;
 import org.lemon.entity.dto.RetryTaskTypeResultDTO;
 import org.lemon.enumeration.RetryTaskTypeEnum;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * description: add a description
@@ -22,10 +26,9 @@ public interface RetryTaskDefinition {
     /**
      * 执行任务
      *
-     * @param userId
-     * @param taskData
+     * @param taskList
      * @return
      */
-    RetryTaskTypeResultDTO execute(Integer userId, String taskData);
+    Map<Long, RetryTaskTypeResultDTO> execute(List<RetryTask> taskList);
 
 }
