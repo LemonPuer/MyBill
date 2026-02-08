@@ -14,7 +14,13 @@ import lombok.Data;
 @AllArgsConstructor
 public class RetryTaskTypeResultDTO {
 
+    /**
+     * 是否成功
+     */
     private Boolean success;
 
+    /**
+     * 数据
+     */
     private String data;
 }

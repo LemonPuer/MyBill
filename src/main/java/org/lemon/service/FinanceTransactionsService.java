@@ -83,8 +83,8 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
         }
         Boolean execute;
         Map<Integer, String> promptMap;
+        Map<Integer, UserPromptInfoDTO> userPromptInfo = getUserPromptInfo(users);
         try {
-            Map<Integer, UserPromptInfoDTO> userPromptInfo = getUserPromptInfo(users);
             promptMap = aiPromptTemplateService.getPromptDetail(CONSUMPTION_RECORDS_ASSISTANT, userPromptInfo.values());
         } catch (Exception e) {
             log.error("Telegram ai bill message error:{}", e.getMessage(), e);
@@ -94,12 +94,17 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
             return Collections.emptyMap();
         }
         Map<Long, RetryTaskTypeResultDTO> result = new HashMap<>(taskList.size());
-        Map<Long, ChatFinanceTransactionsDTO> taskBillMap = HashMap.newHashMap(promptMap.size());
+        List<FinanceTransactions> list = new ArrayList<>();
         userTaskMap.forEach((userId, tasks) -> {
             String prompt = promptMap.get(userId);
             tasks.forEach(task -> {
                 try {
-                    taskBillMap.put(task.getId(), billAssistantService.billMessageChat(prompt, task.getTaskData()));
+                    ChatFinanceTransactionsDTO dto = billAssistantService.billMessageChat(prompt, task.getTaskData());
+                    FinanceTransactions financeTransactions = checkChatData(dto, userPromptInfo.get(userId), task.getCreatedTime());
+                    if (financeTransactions == null) {
+                        throw new BusinessException("账单信息校验失败！");
+                    }
+                    list.add(financeTransactions);
                     result.computeIfAbsent(task.getId(), o -> new RetryTaskTypeResultDTO(true, ""));
                 } catch (Exception e) {
                     log.error("Telegram ai bill message error:{}", e.getMessage(), e);
@@ -108,6 +113,9 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
                 }
             });
         });
+        if (CollUtil.isNotEmpty(list)) {
+            saveBatch(list);
+        }
         return result;
     }
 
@@ -257,8 +265,9 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
             }
             result.add(po);
         });
-
-        safeSave(result);
+        if (CollUtil.isNotEmpty(result)) {
+            saveBatch(result);
+        }
     }
 
     private Map<Integer, UserPromptInfoDTO> getUserPromptInfo(List<User> list) {
@@ -343,28 +352,5 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
                 .createTime(LocalDateTime.now())
                 .createNo(userInfo.getUserId())
                 .build();
-    }
-
-    public Integer safeSave(List<FinanceTransactions> list) {
-        if (CollUtil.isEmpty(list)) {
-            return 0;
-        }
-        try {
-            saveBatch(list);
-            return list.size();
-        } catch (Exception e) {
-            log.error("批量保存账单失败：{}", e.getMessage(), e);
-        }
-        int count = 0;
-        for (FinanceTransactions info : list) {
-            try {
-                save(info);
-                count++;
-            } catch (Exception e) {
-                log.error("保存账单失败：{}", e.getMessage(), e);
-                retryTaskService.createRetryTask(TELEGRAM_BILL_PARSE, info.getNote(), info.getUserId());
-            }
-        }
-        return count;
     }
 }

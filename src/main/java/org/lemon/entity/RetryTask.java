@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.lemon.enumeration.RetryTaskStatusEnum;
 import org.lemon.enumeration.RetryTaskTypeEnum;
 
 import java.io.Serializable;
@@ -61,7 +62,7 @@ public class RetryTask implements Serializable {
     /**
      * 状态：0-待重试，1-重试中，2-重试成功，3-重试失败
      */
-    private Integer status;
+    private RetryTaskStatusEnum status;
 
     /**
      * 错误信息
