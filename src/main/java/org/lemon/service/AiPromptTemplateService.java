@@ -52,7 +52,7 @@ public class AiPromptTemplateService extends ServiceImpl<AiPromptTemplateMapper,
         userInfoMap.forEach((userId, values) -> {
             // 替换模板中的占位符
             String filledContent = replacePlaceholders(new String(template.getContent()), values);
-            result.put(template.getVersion(), filledContent);
+            result.put(userId, filledContent);
         });
         return result;
     }
