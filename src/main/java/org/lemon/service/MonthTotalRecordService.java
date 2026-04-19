@@ -52,9 +52,9 @@ public class MonthTotalRecordService extends ServiceImpl<MonthTotalRecordMapper,
         }
         List<ConsumerTrendsVO> list = page.getRecords().stream().map(o -> ConsumerTrendsVO.builder()
                 .month(o.getMonth())
-                .totalIncome(o.getTotalIncome().doubleValue())
-                .totalExpense(o.getTotalExpense().doubleValue())
-                .totalBalance(o.getTotalBalance().doubleValue())
+                .totalIncome(o.getTotalIncome())
+                .totalExpense(o.getTotalExpense())
+                .totalBalance(o.getTotalBalance())
                 .build()).collect(Collectors.toList());
         result.setRecords(list);
         return result;

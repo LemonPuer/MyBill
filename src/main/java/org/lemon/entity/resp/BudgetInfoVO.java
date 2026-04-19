@@ -3,6 +3,8 @@ package org.lemon.entity.resp;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * description: add a description
  *
@@ -38,4 +40,14 @@ public class BudgetInfoVO {
      * 消费金额
      */
     private String cost;
+
+    /**
+     * 预算开始时间
+     */
+    private LocalDateTime startTime;
+
+    /**
+     * 预算结束时间
+     */
+    private LocalDateTime endTime;
 }

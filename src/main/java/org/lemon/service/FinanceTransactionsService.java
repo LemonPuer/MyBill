@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lemon.chat.BillAssistantService;
 import org.lemon.entity.*;
+import org.lemon.entity.common.StringReq;
 import org.lemon.entity.common.TelegramBillMessageParam;
 import org.lemon.entity.dto.ChatFinanceTransactionsDTO;
 import org.lemon.entity.dto.RetryTaskTypeResultDTO;
@@ -121,14 +122,14 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
 
     public List<CashFlowCardVO> getCashFlowCard(TimeFrameReq data) {
         Integer userId = UserUtil.getCurrentUserId();
-        Map<Integer, Double> amountMap = queryChain().select(FinanceTransactions::getAmount, FinanceTransactions::getType)
+        Map<Integer, BigDecimal> amountMap = queryChain().select(FinanceTransactions::getAmount, FinanceTransactions::getType)
                 .eq(FinanceTransactions::getUserId, userId)
                 .between(FinanceTransactions::getTransactionDate, data.getStartTime(), data.getEndTime())
                 .list().stream()
-                .collect(Collectors.groupingBy(FinanceTransactions::getType, Collectors.summingDouble(o -> o.getAmount().doubleValue())));
+                .collect(Collectors.groupingBy(FinanceTransactions::getType, Collectors.reducing(BigDecimal.ZERO, FinanceTransactions::getAmount, BigDecimal::add)));
         List<CashFlowCardVO> result = new ArrayList<>(AmountTypeEnum.values().length);
-        Double income = amountMap.getOrDefault(AmountTypeEnum.INCOME.getCode(), 0D);
-        Double expense = amountMap.getOrDefault(AmountTypeEnum.EXPENSE.getCode(), 0D);
+        BigDecimal income = amountMap.getOrDefault(AmountTypeEnum.INCOME.getCode(), BigDecimal.ZERO);
+        BigDecimal expense = amountMap.getOrDefault(AmountTypeEnum.EXPENSE.getCode(), BigDecimal.ZERO);
         CashFlowCardVO vo1 = new CashFlowCardVO();
         vo1.setType(AmountTypeEnum.INCOME.getCode());
         vo1.setAmount(income);
@@ -139,7 +140,7 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
         result.add(vo2);
         CashFlowCardVO vo3 = new CashFlowCardVO();
         vo3.setType(AmountTypeEnum.BALANCE.getCode());
-        vo3.setAmount(income - expense);
+        vo3.setAmount(income.subtract(expense));
         result.add(vo3);
         return result;
     }
@@ -156,7 +157,7 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
                 .eq(FinanceTransactions::getType, data.getType(), data.getType() != null)
                 .ge(FinanceTransactions::getTransactionDate, data.getStartTime(), data.getStartTime() != null)
                 .lt(FinanceTransactions::getTransactionDate, data.getEndTime(), data.getEndTime() != null)
-                .orderBy(MonthTotalRecord::getId, false)
+                .orderBy(FinanceTransactions::getTransactionDate, false)
                 .page(new Page<>(data.getPageNum(), data.getPageSize()));
         Page<FinanceTransactionsVO> result = new Page<>();
         result.setTotalRow(page.getTotalRow());
@@ -167,11 +168,16 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
         List<FinanceTransactionsVO> list = new ArrayList<>();
         for (FinanceTransactions temp : page.getRecords()) {
             FinanceTransactionsVO vo = FinanceTransactionsVO.builder()
+                    .id(temp.getId())
+                    .categoryId(temp.getCategoryId())
                     .note(temp.getNote()).type(temp.getType())
                     .transactionDate(temp.getTransactionDate())
-                    .amount(temp.getAmount().doubleValue())
+                    .amount(temp.getAmount())
                     .build();
-            vo.setCategory(Optional.ofNullable(categoryMap.get(temp.getCategoryId())).map(Category::getCategory).orElse(""));
+            Optional.ofNullable(categoryMap.get(temp.getCategoryId())).ifPresent(category -> {
+                vo.setIcon(category.getIcon());
+                vo.setCategory(category.getCategory());
+            });
             list.add(vo);
         }
         result.setRecords(list);
@@ -183,7 +189,7 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
         Integer userId = UserUtil.getCurrentUserId();
         FinanceTransactions result = FinanceTransactions.builder()
                 .id(data.getId()).userId(userId)
-                .amount(BigDecimal.valueOf(data.getAmount()))
+                .amount(data.getAmount())
                 .type(data.getType())
                 .categoryId(data.getCategoryId())
                 .transactionDate(data.getTransactionDate())
@@ -212,7 +218,9 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
     }
 
     public List<ConsumptionStatisticsVO> getConsumptionStatistics(ConsumerTrendsReq data) {
-        Map<Integer, BigDecimal> collect = queryChain().between(FinanceTransactions::getTransactionDate, data.getStartTime(), data.getEndTime())
+        Integer userId = UserUtil.getCurrentUserId();
+        Map<Integer, BigDecimal> collect = queryChain().eq(FinanceTransactions::getUserId, userId)
+                .between(FinanceTransactions::getTransactionDate, data.getStartTime(), data.getEndTime())
                 .eq(FinanceTransactions::getType, AmountTypeEnum.EXPENSE.getCode())
                 .list().stream().collect(Collectors.groupingBy(FinanceTransactions::getCategoryId,
                         Collectors.mapping(FinanceTransactions::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))));
@@ -220,7 +228,6 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
         if (CollUtil.isEmpty(collect)) {
             return result;
         }
-        Integer userId = UserUtil.getCurrentUserId();
         // 查询分类
         Map<Integer, String> categoryMap = QueryChain.of(categoryMapper).eq(Category::getUserId, userId)
                 .in(Category::getId, collect.keySet())
@@ -228,7 +235,7 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
         collect.forEach((key, value) -> {
             ConsumptionStatisticsVO vo = new ConsumptionStatisticsVO();
             vo.setCategory(categoryMap.getOrDefault(key, ""));
-            vo.setConsumption(value.doubleValue());
+            vo.setConsumption(value);
             result.add(vo);
         });
         return result;
@@ -351,5 +358,40 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
                 .createTime(LocalDateTime.now())
                 .createNo(userInfo.getUserId())
                 .build();
+    }
+
+    public FinanceTransactionsVO analysisUserDesc(StringReq data) {
+        Integer userId = UserUtil.getCurrentUserId();
+        if (StrUtil.isBlank(data.getMessage())) {
+            throw new BusinessException("请输入描述！");
+        }
+        if (Objects.isNull(userId)) {
+            throw new BusinessException("请登录后使用！");
+        }
+        User user = userMapper.selectOneById(userId);
+        Map<Integer, UserPromptInfoDTO> userPromptInfo = getUserPromptInfo(Collections.singletonList(user));
+        Map<Integer, String> promptMap = aiPromptTemplateService.getPromptDetail(CONSUMPTION_RECORDS_ASSISTANT, userPromptInfo.values());
+        ChatFinanceTransactionsDTO dto;
+        try {
+            dto = billAssistantService.billMessageChat(promptMap.get(userId), data.getMessage());
+        } catch (Exception e) {
+            log.error("Telegram ai bill message error:{}", e.getMessage(), e);
+            throw new BusinessException("解析失败");
+        }
+        Category category = QueryChain.of(categoryMapper).eq(Category::getUserId, userId)
+                .eq(Category::getId, dto.getCategoryId()).one();
+        FinanceTransactionsVO result = FinanceTransactionsVO.builder()
+                .amount(dto.getAmount())
+                .type(dto.getAmountType())
+                .transactionDate(LocalDateTime.now())
+                .note(data.getMessage())
+                .build();
+        if (Objects.isNull(category)) {
+            return result;
+        }
+        result.setCategoryId(category.getId());
+        result.setCategory(category.getCategory());
+        result.setIcon(category.getIcon());
+        return result;
     }
 }

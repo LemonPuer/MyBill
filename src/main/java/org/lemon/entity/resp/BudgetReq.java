@@ -2,6 +2,7 @@ package org.lemon.entity.resp;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -28,7 +29,7 @@ public class BudgetReq {
     /**
      * 预算金额
      */
-    private Double amount;
+    private BigDecimal amount;
 
     /**
      * 预算开始时间

@@ -1,9 +1,9 @@
 package org.lemon.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lemon.entity.Budget;
@@ -20,7 +20,7 @@ import org.lemon.utils.UserUtil;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -47,8 +47,13 @@ public class BudgetService extends ServiceImpl<BudgetMapper, Budget> {
     public List<BudgetInfoVO> getBudgetInfo(TimeFrameReq data) {
         Integer userId = UserUtil.getCurrentUserId();
         List<Budget> list = queryChain().eq(Budget::getUserId, userId)
-                .between(Budget::getStartTime, data.getStartTime(), data.getEndTime())
+                // 预算区间只要和查询区间有交集，就应该展示出来。
+                .le(Budget::getStartTime, data.getEndTime())
+                .ge(Budget::getEndTime, data.getStartTime())
                 .list();
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
+        }
         List<Integer> categoryIds = list.stream().map(Budget::getCategoryId).collect(Collectors.toList());
         CompletableFuture<Map<Integer, Category>> future1 = CompletableFuture
                 .supplyAsync(() -> QueryChain.of(categoryMapper).eq(Category::getUserId, userId)
@@ -66,9 +71,10 @@ public class BudgetService extends ServiceImpl<BudgetMapper, Budget> {
         Map<Integer, Category> categoryMap = future1.join();
         Map<Integer, Double> expenseMap = future2.join();
         return list.stream().map(o -> {
-            Category category = categoryMap.get(o.getId());
-            return BudgetInfoVO.builder().icon(category.getIcon()).amount(o.getAmount().toString())
-                    .category(category.getCategory()).cost(expenseMap.getOrDefault(o.getId(), 0.0).toString())
+            Category category = categoryMap.getOrDefault(o.getCategoryId(), new Category());
+            return BudgetInfoVO.builder().id(o.getId()).icon(category == null ? "" : category.getIcon()).amount(o.getAmount().toString())
+                    .category(category == null ? "" : category.getCategory()).cost(expenseMap.getOrDefault(o.getCategoryId(), 0.0).toString())
+                    .startTime(o.getStartTime()).endTime(o.getEndTime())
                     .build();
         }).collect(Collectors.toList());
     }
@@ -76,7 +82,7 @@ public class BudgetService extends ServiceImpl<BudgetMapper, Budget> {
     public Boolean saveOrUpdateBudget(BudgetReq data) {
         Integer userId = UserUtil.getCurrentUserId();
         Budget budget = Budget.builder().id(data.getId()).userId(UserUtil.getCurrentUserId())
-                .categoryId(data.getCategoryId()).amount(BigDecimal.valueOf(data.getAmount()))
+                .categoryId(data.getCategoryId()).amount(data.getAmount())
                 .startTime(data.getStartTime()).endTime(data.getEndTime()).build();
         if (data.getId() != null && data.getId() > 0) {
             budget.setUpdateNo(userId);

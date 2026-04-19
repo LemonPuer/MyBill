@@ -31,7 +31,7 @@ public class FinancialObjectivesVO {
     /**
      * 目标金额
      */
-    private Double amount;
+    private BigDecimal amount;
 
     /**
      * 是否完成
@@ -41,5 +41,5 @@ public class FinancialObjectivesVO {
     /**
      * 余额
      */
-    private Double balance;
+    private BigDecimal balance;
 }

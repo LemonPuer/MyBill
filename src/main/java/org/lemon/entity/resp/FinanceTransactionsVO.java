@@ -2,7 +2,6 @@ package org.lemon.entity.resp;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,12 +22,17 @@ public class FinanceTransactionsVO {
     /**
      * 金额（支持百万级精度）
      */
-    private Double amount;
+    private BigDecimal amount;
 
     /**
      * 收支类型;1收入2支出
      */
     private Integer type;
+
+    /**
+     * 分类ID
+     */
+    private Integer categoryId;
 
     /**
      * 分类

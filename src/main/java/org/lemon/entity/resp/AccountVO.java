@@ -3,6 +3,8 @@ package org.lemon.entity.resp;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * description: add a description
  *
@@ -36,7 +38,7 @@ public class AccountVO {
     /**
      * 金额
      */
-    private Double amount;
+    private BigDecimal amount;
 
     /**
      * 子账户

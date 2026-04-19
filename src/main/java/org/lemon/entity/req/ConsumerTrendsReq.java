@@ -1,6 +1,7 @@
 package org.lemon.entity.req;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.lemon.entity.common.BasePage;
 
 import jakarta.validation.constraints.NotBlank;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
  * @date 2025/05/17 23:31:19
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class ConsumerTrendsReq extends BasePage {
 
     /**

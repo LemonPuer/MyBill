@@ -2,6 +2,8 @@ package org.lemon.entity.resp;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * description: add a description
  *
@@ -20,5 +22,5 @@ public class ConsumptionStatisticsVO {
     /**
      * 消费金额
      */
-    private Double consumption;
+    private BigDecimal consumption;
 }

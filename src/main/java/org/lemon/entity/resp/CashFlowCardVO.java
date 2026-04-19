@@ -2,6 +2,8 @@ package org.lemon.entity.resp;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 本月收支卡片
  *
@@ -15,7 +17,7 @@ public class CashFlowCardVO {
     /**
      * 金额
      */
-    private Double amount;
+    private BigDecimal amount;
 
     /**
      * 类型

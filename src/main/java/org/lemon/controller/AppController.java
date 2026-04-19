@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 首页
+ * 账单
  *
  * @author Lemon
  * @version 1.0.0
@@ -31,6 +31,17 @@ public class AppController {
     private final MonthTotalRecordService monthTotalRecordService;
     private final FinanceTransactionsService financeTransactionsService;
     private final FinancialObjectivesService financialObjectivesService;
+
+    /**
+     * 解析用户描述
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("analysis")
+    public ApiResp<FinanceTransactionsVO> analysisUserDesc(@Validated @RequestBody ApiReq<StringReq> req) {
+        return ApiResp.ok(financeTransactionsService.analysisUserDesc(req.getData()));
+    }
 
     /**
      * 获取收支卡片
@@ -108,15 +119,15 @@ public class AppController {
         return PageResp.ok(categoryService.getCategory(req.getData()));
     }
 
-    // /**
-    //  * 获取财务目标
-    //  *
-    //  * @return
-    //  */
-    // @PostMapping("financialObjectives")
-    // public PageResp<FinancialObjectivesVO> getFinancialObjectives(@Validated @RequestBody ApiReq<BasePage> req) {
-    //     return PageResp.ok(financialObjectivesService.getFinancialObjectives(req.getData()));
-    // }
+    /**
+     * 获取财务目标
+     *
+     * @return
+     */
+    @PostMapping("financialObjectives")
+    public PageResp<FinancialObjectivesVO> getFinancialObjectives(@Validated @RequestBody ApiReq<BasePage> req) {
+        return PageResp.ok(financialObjectivesService.getFinancialObjectives(req.getData()));
+    }
 
     /**
      * 获取最近提醒

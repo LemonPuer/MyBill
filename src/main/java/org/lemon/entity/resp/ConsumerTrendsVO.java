@@ -3,6 +3,8 @@ package org.lemon.entity.resp;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * description: add a description
  *
@@ -17,17 +19,17 @@ public class ConsumerTrendsVO {
     /**
      * 收入金额
      */
-    private Double totalIncome;
+    private BigDecimal totalIncome;
 
     /**
      * 支出金额
      */
-    private Double totalExpense;
+    private BigDecimal totalExpense;
 
     /**
      * 月度结余
      */
-    private Double totalBalance;
+    private BigDecimal totalBalance;
 
     /**
      * 月份

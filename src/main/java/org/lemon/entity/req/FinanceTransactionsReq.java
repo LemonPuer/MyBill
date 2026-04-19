@@ -1,8 +1,9 @@
 package org.lemon.entity.req;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -24,7 +25,7 @@ public class FinanceTransactionsReq {
      * 金额（支持百万级精度）
      */
     @NotNull(message = "金额不能为空!")
-    private Double amount;
+    private BigDecimal amount;
 
     /**
      * 收支类型;1收入2支出

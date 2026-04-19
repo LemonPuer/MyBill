@@ -1,6 +1,7 @@
 package org.lemon.entity.req;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.lemon.entity.common.BasePage;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
  * @date 2025/05/17 21:43:03
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class FinanceTransactionsQueryReq extends BasePage {
 
     /**
