@@ -13,6 +13,11 @@ import lombok.Data;
 public class UserUpdateReq {
 
     /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
      * 头像
      */
     private String avatarUrl;
@@ -26,4 +31,5 @@ public class UserUpdateReq {
      * 用户名
      */
     private String username;
+
 }

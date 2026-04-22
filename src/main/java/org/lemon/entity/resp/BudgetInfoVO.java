@@ -24,7 +24,7 @@ public class BudgetInfoVO {
     /**
      * 分类
      */
-    private String category;
+    private String categoryName;
 
     /**
      * 分类图标
@@ -39,7 +39,7 @@ public class BudgetInfoVO {
     /**
      * 消费金额
      */
-    private String cost;
+    private String spent;
 
     /**
      * 预算开始时间

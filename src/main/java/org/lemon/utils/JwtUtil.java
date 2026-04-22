@@ -41,9 +41,11 @@ public class JwtUtil {
      */
     public static UserTokenVO generateToken(String userInfo) {
         UserTokenVO result = new UserTokenVO();
+        Date now = new Date();
         LocalDateTime expireTime = LocalDateTimeUtil.offset(LocalDateTime.now(), EXPIRATION, ChronoUnit.MILLIS);
         String accessToken = Jwts.builder()
                 .setSubject(userInfo)
+                .setIssuedAt(now)
                 .setExpiration(DateUtil.date(expireTime))
                 // 使用 Key + 指定算法
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS512)

@@ -73,7 +73,7 @@ public class BudgetService extends ServiceImpl<BudgetMapper, Budget> {
         return list.stream().map(o -> {
             Category category = categoryMap.getOrDefault(o.getCategoryId(), new Category());
             return BudgetInfoVO.builder().id(o.getId()).icon(category == null ? "" : category.getIcon()).amount(o.getAmount().toString())
-                    .category(category == null ? "" : category.getCategory()).cost(expenseMap.getOrDefault(o.getCategoryId(), 0.0).toString())
+                    .categoryName(category == null ? "" : category.getCategory()).spent(expenseMap.getOrDefault(o.getCategoryId(), 0.0).toString())
                     .startTime(o.getStartTime()).endTime(o.getEndTime())
                     .build();
         }).collect(Collectors.toList());

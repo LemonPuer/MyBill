@@ -2,7 +2,11 @@ package org.lemon.service;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.update.UpdateChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -13,9 +17,12 @@ import org.lemon.entity.User;
 import org.lemon.entity.UserInfo;
 import org.lemon.entity.UserToken;
 import org.lemon.entity.dto.SystemEmailDTO;
+import org.lemon.entity.dto.UserResetCodeDTO;
 import org.lemon.entity.exception.BusinessException;
 import org.lemon.entity.req.UserLoginReq;
+import org.lemon.entity.req.UserResetPasswordReq;
 import org.lemon.entity.req.UserRegisterReq;
+import org.lemon.entity.req.UserSendResetCodeReq;
 import org.lemon.entity.req.UserTokenFreshReq;
 import org.lemon.entity.req.UserUpdateReq;
 import org.lemon.entity.resp.UserTokenVO;
@@ -29,10 +36,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 用户信息表 服务层实现。
@@ -53,6 +63,21 @@ public class UserService extends ServiceImpl<UserMapper, User> {
 
     private final UserTokenMapper userTokenMapper;
 
+    private static final int RESET_CODE_LENGTH = 6;
+    private static final long RESET_CODE_EXPIRE_MINUTES = 10L;
+    private static final long RESET_CODE_RESEND_SECONDS = 60L;
+    private static final int RESET_CODE_MAX_FAILED_COUNT = 5;
+
+    private final Cache<String, UserResetCodeDTO> resetCodeCache = Caffeine.newBuilder()
+            .expireAfterWrite(RESET_CODE_EXPIRE_MINUTES, TimeUnit.MINUTES)
+            .maximumSize(1000)
+            .build();
+
+    private final Cache<String, LocalDateTime> resetCodeThrottleCache = Caffeine.newBuilder()
+            .expireAfterWrite(RESET_CODE_RESEND_SECONDS, TimeUnit.SECONDS)
+            .maximumSize(1000)
+            .build();
+
 
     private final String USER_INFO_INTERVAL = ";";
 
@@ -60,10 +85,96 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         if (queryChain().eq(User::getUsername, req.getUsername()).exists()) {
             throw new BusinessException("用户名【" + req.getUsername() + "】已存在！");
         }
-        User result = User.builder().username(req.getUsername()).email(req.getEmail()).build();
+        User result = User.builder().username(req.getUsername()).email(req.getEmail())
+                .passwordUpdateTime(LocalDateTime.now())
+                .build();
         String encode = passwordEncoder.encode(req.getPassword());
         result.setPassword(encode);
         return save(result);
+    }
+
+    public Boolean sendResetCode(UserSendResetCodeReq req) {
+        String email = StrUtil.trim(req.getEmail());
+        String cacheKey = getResetEmailCacheKey(email);
+        if (StrUtil.isBlank(email)) {
+            throw new BusinessException("邮箱不能为空！");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime throttleAt = resetCodeThrottleCache.getIfPresent(cacheKey);
+        if (throttleAt != null && Duration.between(throttleAt, now).getSeconds() < RESET_CODE_RESEND_SECONDS) {
+            throw new BusinessException("验证码发送过于频繁，请稍后再试！");
+        }
+        resetCodeThrottleCache.put(cacheKey, now);
+        User user = getSingleUserByEmail(email);
+        if (user == null) {
+            return true;
+        }
+        String code = RandomUtil.randomNumbers(RESET_CODE_LENGTH);
+        if (!sendResetCodeEmail(user, code)) {
+            resetCodeThrottleCache.invalidate(cacheKey);
+            throw new BusinessException("验证码发送失败，请稍后重试！");
+        }
+        resetCodeCache.put(cacheKey, UserResetCodeDTO.builder()
+                .code(code)
+                .expireAt(now.plusMinutes(RESET_CODE_EXPIRE_MINUTES))
+                .lastSendAt(now)
+                .failedCount(0)
+                .build());
+        return true;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean resetPassword(UserResetPasswordReq req) {
+        String email = StrUtil.trim(req.getEmail());
+        String cacheKey = getResetEmailCacheKey(email);
+        String code = StrUtil.trim(req.getCode());
+        if (StrUtil.isBlank(email)) {
+            throw new BusinessException("邮箱不能为空！");
+        }
+        if (StrUtil.isBlank(code)) {
+            throw new BusinessException("验证码不能为空！");
+        }
+        if (StrUtil.isBlank(req.getNewPassword())) {
+            throw new BusinessException("新密码不能为空！");
+        }
+        User user = getSingleUserByEmail(email);
+        UserResetCodeDTO cached = resetCodeCache.getIfPresent(cacheKey);
+        LocalDateTime now = LocalDateTime.now();
+        if (user == null || cached == null || cached.getExpireAt() == null || cached.getExpireAt().isBefore(now)) {
+            resetCodeCache.invalidate(cacheKey);
+            throw new BusinessException("验证码错误或已过期，请重新获取！");
+        }
+        if (!StrUtil.equals(cached.getCode(), code)) {
+            int failedCount = Optional.ofNullable(cached.getFailedCount()).orElse(0) + 1;
+            if (failedCount >= RESET_CODE_MAX_FAILED_COUNT) {
+                cached.setExpireAt(now.minusSeconds(1));
+                cached.setFailedCount(failedCount);
+                resetCodeCache.put(cacheKey, cached);
+                throw new BusinessException("验证码错误次数过多，请重新获取！");
+            }
+            cached.setFailedCount(failedCount);
+            resetCodeCache.put(cacheKey, cached);
+            throw new BusinessException("验证码错误！");
+        }
+        boolean updated = updateChain().eq(User::getId, user.getId())
+                .set(User::getPassword, passwordEncoder.encode(req.getNewPassword()))
+                .set(User::getPasswordUpdateTime, now)
+                .update();
+        if (!updated) {
+            throw new BusinessException("密码重置失败，请稍后重试！");
+        }
+        userTokenMapper.deleteByQuery(QueryWrapper.create().where(UserToken::getUserId).eq(user.getId()));
+        resetCodeCache.invalidate(cacheKey);
+        return true;
+    }
+
+    public boolean isAccessTokenValid(String token, String userInfo) {
+        User user = getById(extractUserId(userInfo));
+        if (user == null || user.getPasswordUpdateTime() == null) {
+            return true;
+        }
+        LocalDateTime issuedAt = LocalDateTimeUtil.of(JwtUtil.getAllClaimsFromToken(token).getIssuedAt());
+        return issuedAt != null && !issuedAt.isBefore(user.getPasswordUpdateTime());
     }
 
     public UserTokenVO login(UserLoginReq data) {
@@ -117,19 +228,67 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return result;
     }
 
+    private boolean sendResetCodeEmail(User user, String code) {
+        SystemEmailDTO result = new SystemEmailDTO();
+        result.setSubject("MyBill 找回密码验证码");
+        result.setTargetUser(user.getUsername());
+        result.setTargetEmail(user.getEmail());
+        result.setFileName("reset_password_code.html");
+        Map<String, String> map = new HashMap<>();
+        map.put("email", user.getEmail());
+        map.put("code", code);
+        map.put("expireMinutes", String.valueOf(RESET_CODE_EXPIRE_MINUTES));
+        result.setTemplateParams(map);
+        return emailSendService.sendSystemEmailChecked(result);
+    }
+
+    private User getSingleUserByEmail(String email) {
+        java.util.List<User> users = queryChain().eq(User::getEmail, email).list();
+        if (users.size() == 1) {
+            return users.getFirst();
+        }
+        if (users.size() > 1) {
+            log.warn("邮箱:{} 对应多个账号，忽略找回密码请求", email);
+        }
+        return null;
+    }
+
+    private Long extractUserId(String userInfo) {
+        if (StrUtil.isBlank(userInfo)) {
+            return 0L;
+        }
+        String[] split = userInfo.split(USER_INFO_INTERVAL);
+        return Long.parseLong(split[0]);
+    }
+
+    private String getResetEmailCacheKey(String email) {
+        return StrUtil.trim(email).toLowerCase(Locale.ROOT);
+    }
+
 
     public Boolean updateInfo(UserUpdateReq req) {
         Integer userId = UserUtil.getCurrentUserId();
+        User user = getById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在！");
+        }
         if (StrUtil.isNotBlank(req.getUsername())) {
             if (queryChain().eq(User::getUsername, req.getUsername()).ne(User::getId, userId).exists()) {
                 throw new BusinessException("用户名【" + req.getUsername() + "】已存在，不支持修改！");
             }
         }
+        validateUserInfoUpdate(user, req);
         return updateChain().eq(User::getId, userId)
                 .set(User::getUsername, req.getUsername(), StrUtil.isNotBlank(req.getUsername()))
                 .set(User::getAvatarUrl, req.getAvatarUrl(), StrUtil.isNotBlank(req.getAvatarUrl()))
                 .set(User::getDescription, req.getDescription(), StrUtil.isNotBlank(req.getDescription()))
                 .update();
+    }
+
+    static void validateUserInfoUpdate(User user, UserUpdateReq req) {
+        if (req.getEmail() != null && !StrUtil.equals(req.getEmail(), user.getEmail())) {
+            throw new BusinessException("邮箱暂不支持在此处修改！");
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

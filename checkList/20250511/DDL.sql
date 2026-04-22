@@ -33,7 +33,8 @@ CREATE TABLE tt_finance_transactions
     `update_time`      datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `update_no`        int unsigned COMMENT '更新人',
     PRIMARY KEY (id),
-    key                idx_user(user_id)
+    key                idx_user(user_id),
+    key                idx_user_category(user_id, category_id)
 ) comment '账单信息表';
 
 create table tt_category
@@ -63,7 +64,8 @@ create table tt_budget
     `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `update_no`   int unsigned COMMENT '更新人',
     PRIMARY KEY (id),
-    key           idx_user(user_id)
+    key           idx_user(user_id),
+    key           idx_user_category(user_id, category_id)
 )comment '预算管理表';
 
 create table tt_email_remain

@@ -120,6 +120,17 @@ public class AppController {
     }
 
     /**
+     * 删除分类
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("delCategory")
+    public ApiResp<Boolean> delCategory(@Validated @RequestBody ApiReq<IdReq> req) {
+        return ApiResp.ok(categoryService.delCategory(req.getData().getId()));
+    }
+
+    /**
      * 获取财务目标
      *
      * @return

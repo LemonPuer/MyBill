@@ -54,6 +54,11 @@ public class User implements Serializable {
     private String description;
 
     /**
+     * 密码更新时间
+     */
+    private LocalDateTime passwordUpdateTime;
+
+    /**
      * 频道id
      */
     private String channelId;

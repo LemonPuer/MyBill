@@ -6,6 +6,7 @@ CREATE TABLE `tt_user`
     `password`     varchar(255) NOT NULL COMMENT '密码',
     `avatar_url`   varchar(255)          DEFAULT NULL COMMENT '头像地址',
     `description`  varchar(255)          DEFAULT NULL COMMENT '描述',
+    `password_update_time` datetime              DEFAULT NULL COMMENT '密码更新时间',
     `created_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

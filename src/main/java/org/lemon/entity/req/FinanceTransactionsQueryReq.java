@@ -28,6 +28,11 @@ public class FinanceTransactionsQueryReq extends BasePage {
     private Integer categoryId;
 
     /**
+     * 关键字
+     */
+    private String keyword;
+
+    /**
      * 开始时间
      */
     private LocalDateTime startTime;

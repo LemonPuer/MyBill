@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
+import org.lemon.service.UserService;
 import org.lemon.utils.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,9 +27,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
-    public JwtAuthenticationFilter(UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(UserDetailsService userDetailsService, UserService userService) {
         this.userDetailsService = userDetailsService;
+        this.userService = userService;
     }
 
     @Override
@@ -40,6 +44,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String username = JwtUtil.extractUserInfo(token);
         if (StrUtil.isBlank(username)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        if (!userService.isAccessTokenValid(token, username)) {
             filterChain.doFilter(request, response);
             return;
         }

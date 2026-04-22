@@ -1,7 +1,7 @@
 package org.lemon.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.mail.internet.MimeMessage;
@@ -88,56 +88,102 @@ public class EmailSendService {
      * @param dto
      */
     public void sendSystemEmail(SystemEmailDTO dto) {
+        sendSystemEmailChecked(dto);
+    }
+
+    public void sendRenderedSystemEmail(SystemEmailDTO dto) {
+        sendRenderedSystemEmailChecked(dto);
+    }
+
+    public boolean sendSystemEmailChecked(SystemEmailDTO dto) {
         if (StrUtil.isNotBlank(propertiesService.getEmailApi())) {
-            sendByApi(dto);
+            return sendByApi(dto);
         } else if (!Objects.isNull(javaMailSender)) {
-            sendBySmtp(dto);
+            return sendBySmtp(dto);
         } else {
             log.warn("未配置邮件发送功能！");
+            return false;
         }
     }
 
-    private void sendByApi(SystemEmailDTO dto) {
-        JSONObject sendBody = new JSONObject();
-        sendBody.put("from_name", SYSTEM_NAME);
-        sendBody.put("to_name", dto.getTargetUser());
-        sendBody.put("to_mail", dto.getTargetEmail());
-        sendBody.put("subject", dto.getSubject());
-        sendBody.put("is_html", Boolean.TRUE);
-        sendBody.put("content", getEmailContent(dto.getFileName(), dto.getTemplateParams()));
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        headers.add("Authorization", "Bearer " + propertiesService.getEmailAuth());
-        HttpEntity<String> requestEntity = new HttpEntity<>(JSONObject.toJSONString(sendBody), headers);
-        String response = restTemplate.postForObject(propertiesService.getEmailApi(), requestEntity, String.class);
-        if (StrUtil.isNotBlank(response) && response.contains("ok")) {
-            log.info("邮件发送成功！");
+    public boolean sendRenderedSystemEmailChecked(SystemEmailDTO dto) {
+        if (StrUtil.isBlank(dto.getContent())) {
+            throw new BusinessException("邮件内容不能为空！");
         }
+        return sendSystemEmailChecked(dto);
     }
 
-    private void sendBySmtp(SystemEmailDTO dto) {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+    private boolean sendByApi(SystemEmailDTO dto) {
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setTo(dto.getTargetEmail());
-            helper.setSubject(dto.getSubject());
-            helper.setText(getEmailContent(dto.getFileName(), dto.getTemplateParams()), true);
-            helper.setFrom(propertiesService.getMyEmailAccount());
-            javaMailSender.send(mimeMessage);
+            String content = getEmailContent(dto);
+            if (StrUtil.isBlank(content)) {
+                return false;
+            }
+            JSONObject sendBody = new JSONObject();
+            sendBody.put("from_name", SYSTEM_NAME);
+            sendBody.put("to_name", dto.getTargetUser());
+            sendBody.put("to_mail", dto.getTargetEmail());
+            sendBody.put("subject", dto.getSubject());
+            sendBody.put("is_html", Boolean.TRUE);
+            sendBody.put("content", content);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+            headers.add("Authorization", "Bearer " + propertiesService.getEmailAuth());
+            HttpEntity<String> requestEntity = new HttpEntity<>(JSONObject.toJSONString(sendBody), headers);
+            String response = restTemplate.postForObject(propertiesService.getEmailApi(), requestEntity, String.class);
+            if (StrUtil.isNotBlank(response) && response.contains("ok")) {
+                log.info("邮件发送成功！");
+                return true;
+            }
+            log.warn("邮件发送失败，响应结果：{}", response);
         } catch (Exception e) {
             log.error("系统发送邮件失败：", e);
         }
+        return false;
+    }
+
+    private boolean sendBySmtp(SystemEmailDTO dto) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            String content = getEmailContent(dto);
+            if (StrUtil.isBlank(content)) {
+                return false;
+            }
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+            helper.setTo(dto.getTargetEmail());
+            helper.setSubject(dto.getSubject());
+            helper.setText(content, true);
+            helper.setFrom(propertiesService.getMyEmailAccount());
+            javaMailSender.send(mimeMessage);
+            return true;
+        } catch (Exception e) {
+            log.error("系统发送邮件失败：", e);
+        }
+        return false;
+    }
+
+    private String getEmailContent(SystemEmailDTO dto) {
+        if (StrUtil.isNotBlank(dto.getContent())) {
+            return dto.getContent();
+        }
+        return getEmailContent(dto.getFileName(), dto.getTemplateParams());
     }
 
     private String getEmailContent(String templateName, Map<String, String> templateParams) {
+        if (StrUtil.isBlank(templateName)) {
+            return "";
+        }
         Resource resource = resourceLoader.getResource(TEMPLATE_PATH + templateName);
         try {
             // 1. 读取模板文件
-            String content = FileUtil.readUtf8String(resource.getFile());
+            String content = IoUtil.read(resource.getInputStream(), StandardCharsets.UTF_8);
             // 2. 替换模板中的占位符
-            for (Map.Entry<String, String> entry : templateParams.entrySet()) {
-                content = content.replace("{{" + entry.getKey() + "}}", entry.getValue());
+            if (templateParams != null) {
+                for (Map.Entry<String, String> entry : templateParams.entrySet()) {
+                    content = content.replace("{{" + entry.getKey() + "}}", entry.getValue());
+                }
             }
+            return content;
         } catch (Exception e) {
             log.error("邮件模板：{}，读取失败：", templateName, e);
         }

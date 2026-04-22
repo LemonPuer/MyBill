@@ -152,11 +152,7 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
                 .supplyAsync(() -> QueryChain.of(categoryMapper).eq(Category::getUserId, userId).list()
                         .stream().collect(Collectors.toMap(Category::getId, Function.identity())), executor);
         // 查询收支信息
-        Page<FinanceTransactions> page = queryChain().eq(FinanceTransactions::getUserId, userId)
-                .eq(FinanceTransactions::getCategoryId, data.getCategoryId(), data.getCategoryId() != null)
-                .eq(FinanceTransactions::getType, data.getType(), data.getType() != null)
-                .ge(FinanceTransactions::getTransactionDate, data.getStartTime(), data.getStartTime() != null)
-                .lt(FinanceTransactions::getTransactionDate, data.getEndTime(), data.getEndTime() != null)
+        Page<FinanceTransactions> page = applyFinanceTransactionsListFilters(queryChain(), data, userId)
                 .orderBy(FinanceTransactions::getTransactionDate, false)
                 .page(new Page<>(data.getPageNum(), data.getPageSize()));
         Page<FinanceTransactionsVO> result = new Page<>();
@@ -182,6 +178,27 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
         }
         result.setRecords(list);
         return result;
+    }
+
+    static QueryChain<FinanceTransactions> applyFinanceTransactionsListFilters(QueryChain<FinanceTransactions> queryChain,
+                                                                               FinanceTransactionsQueryReq data,
+                                                                               Integer userId) {
+        String keyword = escapeLikeKeyword(StrUtil.trim(data.getKeyword()));
+        return queryChain.eq(FinanceTransactions::getUserId, userId)
+                .eq(FinanceTransactions::getCategoryId, data.getCategoryId(), data.getCategoryId() != null)
+                .eq(FinanceTransactions::getType, data.getType(), data.getType() != null)
+                .like(FinanceTransactions::getNote, keyword, StrUtil.isNotBlank(keyword))
+                .ge(FinanceTransactions::getTransactionDate, data.getStartTime(), data.getStartTime() != null)
+                .lt(FinanceTransactions::getTransactionDate, data.getEndTime(), data.getEndTime() != null);
+    }
+
+    static String escapeLikeKeyword(String keyword) {
+        if (StrUtil.isBlank(keyword)) {
+            return keyword;
+        }
+        return keyword.replace("\\", "\\\\")
+                .replace("%", "\\%")
+                .replace("_", "\\_");
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -234,7 +251,7 @@ public class FinanceTransactionsService extends ServiceImpl<FinanceTransactionsM
                 .list().stream().collect(Collectors.toMap(Category::getId, Category::getCategory));
         collect.forEach((key, value) -> {
             ConsumptionStatisticsVO vo = new ConsumptionStatisticsVO();
-            vo.setCategory(categoryMap.getOrDefault(key, ""));
+            vo.setCategoryName(categoryMap.getOrDefault(key, ""));
             vo.setConsumption(value);
             result.add(vo);
         });

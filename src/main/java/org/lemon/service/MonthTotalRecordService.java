@@ -22,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -86,6 +88,19 @@ public class MonthTotalRecordService extends ServiceImpl<MonthTotalRecordMapper,
         if (CollUtil.isNotEmpty(records)) {
             saveOrUpdateBatch(records);
         }
+    }
+
+    public Map<Integer, MonthTotalRecord> queryPreviousMonthSummaryByUserIds(Collection<Integer> userIds) {
+        if (CollUtil.isEmpty(userIds)) {
+            return Collections.emptyMap();
+        }
+        String previousMonth = YearMonth.from(LocalDate.now()).minusMonths(1).toString();
+        return queryChain()
+                .in(MonthTotalRecord::getUserId, userIds)
+                .eq(MonthTotalRecord::getMonth, previousMonth)
+                .list().stream()
+                .filter(record -> record.getUserId() != null)
+                .collect(Collectors.toMap(MonthTotalRecord::getUserId, record -> record, (left, right) -> right));
     }
 
     private MonthTotalRecord statistics(Integer userId, String month, LocalDateTime startTime, LocalDateTime endTime) {

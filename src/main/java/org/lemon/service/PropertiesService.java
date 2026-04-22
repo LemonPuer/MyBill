@@ -38,4 +38,7 @@ public class PropertiesService {
 
     @Value("${proxy.password:}")
     private String proxyPassword;
+
+    @Value("${app.web-base-url:}")
+    private String appWebBaseUrl;
 }

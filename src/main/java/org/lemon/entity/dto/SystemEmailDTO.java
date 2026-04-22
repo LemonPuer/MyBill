@@ -35,6 +35,11 @@ public class SystemEmailDTO {
     private String fileName;
 
     /**
+     * 已渲染的邮件正文
+     */
+    private String content;
+
+    /**
      * 需要替换的字符串
      */
     private Map<String, String> templateParams;

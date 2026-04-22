@@ -1,6 +1,7 @@
 package org.lemon.config;
 
 import org.lemon.config.filter.JwtAuthenticationFilter;
+import org.lemon.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,7 +31,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/openApi/**", "/user/register", "/user/login").permitAll()
+                        .requestMatchers("/openApi/**", "/user/register", "/user/login",
+                                "/user/sendResetCode", "/user/resetPassword").permitAll()
                         .anyRequest().authenticated()
                 ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 // .formLogin(Customizer.withDefaults())
@@ -39,8 +41,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(UserDetailsService userDetailsService) {
-        return new JwtAuthenticationFilter(userDetailsService);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(UserDetailsService userDetailsService, UserService userService) {
+        return new JwtAuthenticationFilter(userDetailsService, userService);
     }
 
     @Bean

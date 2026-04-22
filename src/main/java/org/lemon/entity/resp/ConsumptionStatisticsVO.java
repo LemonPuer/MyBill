@@ -17,7 +17,7 @@ public class ConsumptionStatisticsVO {
     /**
      * 分类名称
      */
-    private String category;
+    private String categoryName;
 
     /**
      * 消费金额

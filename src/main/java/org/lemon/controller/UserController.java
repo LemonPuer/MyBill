@@ -6,11 +6,16 @@ import org.lemon.entity.common.ApiReq;
 import org.lemon.entity.common.ApiResp;
 import org.lemon.entity.common.StringReq;
 import org.lemon.entity.req.UserLoginReq;
+import org.lemon.entity.req.NotifyPreferenceUpdateReq;
+import org.lemon.entity.req.UserResetPasswordReq;
 import org.lemon.entity.req.UserRegisterReq;
+import org.lemon.entity.req.UserSendResetCodeReq;
 import org.lemon.entity.req.UserTokenFreshReq;
 import org.lemon.entity.req.UserUpdateReq;
+import org.lemon.entity.resp.NotifyPreferenceVO;
 import org.lemon.entity.resp.UserInfoVO;
 import org.lemon.entity.resp.UserTokenVO;
+import org.lemon.service.NotifyPreferenceService;
 import org.lemon.service.UserService;
 import org.lemon.utils.UserUtil;
 import org.springframework.validation.annotation.Validated;
@@ -32,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private UserService userService;
+    private NotifyPreferenceService notifyPreferenceService;
 
     /**
      * 登录
@@ -55,6 +61,22 @@ public class UserController {
     @PostMapping("register")
     public ApiResp<Boolean> register(@Validated @RequestBody ApiReq<UserRegisterReq> req) {
         return ApiResp.ok(userService.register(req.getData()));
+    }
+
+    /**
+     * 发送找回密码验证码
+     */
+    @PostMapping("sendResetCode")
+    public ApiResp<Boolean> sendResetCode(@Validated @RequestBody ApiReq<UserSendResetCodeReq> req) {
+        return ApiResp.ok(userService.sendResetCode(req.getData()));
+    }
+
+    /**
+     * 重置密码
+     */
+    @PostMapping("resetPassword")
+    public ApiResp<Boolean> resetPassword(@Validated @RequestBody ApiReq<UserResetPasswordReq> req) {
+        return ApiResp.ok(userService.resetPassword(req.getData()));
     }
 
     /**
@@ -88,6 +110,16 @@ public class UserController {
     @PostMapping("updateInfo")
     public ApiResp<Boolean> updateInfo(@Validated @RequestBody ApiReq<UserUpdateReq> req) {
         return ApiResp.ok(userService.updateInfo(req.getData()));
+    }
+
+    @PostMapping("getNotifyPreference")
+    public ApiResp<NotifyPreferenceVO> getNotifyPreference() {
+        return ApiResp.ok(notifyPreferenceService.getCurrentUserNotifyPreference());
+    }
+
+    @PostMapping("updateNotifyPreference")
+    public ApiResp<Boolean> updateNotifyPreference(@Validated @RequestBody ApiReq<NotifyPreferenceUpdateReq> req) {
+        return ApiResp.ok(notifyPreferenceService.updateCurrentUserNotifyPreference(req.getData()));
     }
 
 
