@@ -104,15 +104,4 @@ public class BeanConfig {
         executor.initialize();
         return executor;
     }
-
-    @Bean
-    public freemarker.template.Configuration freeMarkerConfiguration() {
-        freemarker.template.Configuration configuration = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_34);
-        configuration.setDefaultEncoding("UTF-8");
-        configuration.setTemplateExceptionHandler(freemarker.template.TemplateExceptionHandler.RETHROW_HANDLER);
-        configuration.setLogTemplateExceptions(false);
-        configuration.setWrapUncheckedExceptions(true);
-        configuration.setFallbackOnNullLoopVariable(false);
-        return configuration;
-    }
 }
