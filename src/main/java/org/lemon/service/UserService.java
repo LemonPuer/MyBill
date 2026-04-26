@@ -6,8 +6,8 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.query.QueryChain;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.update.UpdateChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
@@ -19,13 +19,9 @@ import org.lemon.entity.UserToken;
 import org.lemon.entity.dto.SystemEmailDTO;
 import org.lemon.entity.dto.UserResetCodeDTO;
 import org.lemon.entity.exception.BusinessException;
-import org.lemon.entity.req.UserLoginReq;
-import org.lemon.entity.req.UserResetPasswordReq;
-import org.lemon.entity.req.UserRegisterReq;
-import org.lemon.entity.req.UserSendResetCodeReq;
-import org.lemon.entity.req.UserTokenFreshReq;
-import org.lemon.entity.req.UserUpdateReq;
+import org.lemon.entity.req.*;
 import org.lemon.entity.resp.UserTokenVO;
+import org.lemon.enumeration.SystemConstants;
 import org.lemon.mapper.UserMapper;
 import org.lemon.mapper.UserTokenMapper;
 import org.lemon.utils.JwtUtil;
@@ -35,8 +31,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Locale;
@@ -78,8 +74,6 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             .maximumSize(1000)
             .build();
 
-
-    private final String USER_INFO_INTERVAL = ";";
 
     public boolean register(UserRegisterReq req) {
         if (queryChain().eq(User::getUsername, req.getUsername()).exists()) {
@@ -185,7 +179,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         if (!passwordEncoder.matches(data.getPassword(), user.getPassword())) {
             throw new BusinessException("密码错误！");
         }
-        String userInfo = user.getId() + USER_INFO_INTERVAL + user.getUsername();
+        String userInfo = user.getId() + SystemConstants.SEMICOLON + user.getUsername();
         UserTokenVO vo = JwtUtil.generateToken(userInfo);
         if (StrUtil.isBlank(data.getDeviceId())) {
             return vo;
@@ -257,7 +251,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         if (StrUtil.isBlank(userInfo)) {
             return 0L;
         }
-        String[] split = userInfo.split(USER_INFO_INTERVAL);
+        String[] split = userInfo.split(SystemConstants.SEMICOLON);
         return Long.parseLong(split[0]);
     }
 
@@ -306,7 +300,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             log.info("用户：{} refreshToken:{} 已过期", UserUtil.getCurrentUsername(), req.getRefreshToken());
             return null;
         }
-        String userInfoStr = userInfo.getId() + USER_INFO_INTERVAL + userInfo.getUsername();
+        String userInfoStr = userInfo.getId() + SystemConstants.SEMICOLON + userInfo.getUsername();
         UserTokenVO userTokenVO = JwtUtil.generateToken(userInfoStr);
         long dayCount = LocalDateTimeUtil.between(now, tokenInfo.getExpireTime(), ChronoUnit.DAYS);
         int userRefreshTokenNeedFresh = 3;
