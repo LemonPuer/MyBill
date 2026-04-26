@@ -4,7 +4,7 @@ import com.mybatisflex.core.BaseMapper;
 import org.lemon.entity.NotifyTemplate;
 
 /**
- * 通知模板表 映射层。
+ * 通知模板 Mapper。
  *
  * @author Lemon
  * @since 2026-04-22

@@ -28,19 +28,43 @@ public class NotifyPreference implements Serializable {
     @Id(keyType = KeyType.Auto)
     private Long id;
 
+    /**
+     * 用户id
+     */
     private Integer userId;
 
+    /**
+     * 通知业务类型
+     */
     private String bizType;
 
+    /**
+     * 通知渠道
+     */
     private String channel;
 
+    /**
+     * 是否启用
+     */
     private Boolean enabled;
 
+    /**
+     * 发送小时
+     */
     private Integer sendHour;
 
+    /**
+     * 扩展配置
+     */
     private String extraConfigJson;
 
+    /**
+     * 创建时间
+     */
     private LocalDateTime createdTime;
 
+    /**
+     * 更新时间
+     */
     private LocalDateTime updatedTime;
 }

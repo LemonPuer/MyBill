@@ -37,24 +37,42 @@ public class NotifyRecord implements Serializable {
 
     private String channel;
 
+    /**
+     * 发送目标
+     */
     private String target;
 
+    /**
+     * 业务唯一标识
+     */
     private String bizKey;
 
     private LocalDate bizDate;
 
+    /**
+     * 发送载荷快照
+     */
     private String payloadJson;
 
     private Integer status;
 
     private LocalDateTime scheduledTime;
 
+    /**
+     * 邮件主题快照
+     */
     private String subjectSnapshot;
 
+    /**
+     * 邮件正文快照
+     */
     private String contentSnapshot;
 
     private Integer retryCount;
 
+    /**
+     * 失败原因
+     */
     private String errorMessage;
 
     private LocalDateTime sentTime;

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Map;
 
 /**
- * description: add a description
+ * 系统邮件发送参数。
  *
  * @author Lemon
  * @version 1.0.0
@@ -15,7 +15,7 @@ import java.util.Map;
 public class SystemEmailDTO {
 
     /**
-     * 收件人
+     * 收件人名称
      */
     private String targetUser;
 
@@ -30,17 +30,17 @@ public class SystemEmailDTO {
     private String subject;
 
     /**
-     * 邮件模板路径
+     * 邮件模板文件名；当 {@link #content} 为空时使用。
      */
     private String fileName;
 
     /**
-     * 已渲染的邮件正文
+     * 已渲染的邮件正文；优先级高于模板文件。
      */
     private String content;
 
     /**
-     * 需要替换的字符串
+     * 模板占位符参数。
      */
     private Map<String, String> templateParams;
 }

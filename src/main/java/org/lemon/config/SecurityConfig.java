@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * description: add a description
+ * Spring Security 配置。
  *
  * @author Lemon
  * @version 1.0.0

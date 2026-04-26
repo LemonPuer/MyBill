@@ -75,6 +75,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             .build();
 
 
+    /**
+     * 注册新用户
+     *
+     * @param req 注册参数
+     * @return 是否注册成功
+     */
     public boolean register(UserRegisterReq req) {
         if (queryChain().eq(User::getUsername, req.getUsername()).exists()) {
             throw new BusinessException("用户名【" + req.getUsername() + "】已存在！");
@@ -87,6 +93,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return save(result);
     }
 
+    /**
+     * 发送找回密码验证码
+     *
+     * @param req 找回密码参数
+     * @return 是否发送成功
+     */
     public Boolean sendResetCode(UserSendResetCodeReq req) {
         String email = StrUtil.trim(req.getEmail());
         String cacheKey = getResetEmailCacheKey(email);
@@ -117,6 +129,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return true;
     }
 
+    /**
+     * 校验验证码后重置密码
+     *
+     * @param req 重置密码参数
+     * @return 是否重置成功
+     */
     @Transactional(rollbackFor = Exception.class)
     public Boolean resetPassword(UserResetPasswordReq req) {
         String email = StrUtil.trim(req.getEmail());
@@ -162,6 +180,13 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return true;
     }
 
+    /**
+     * 校验访问令牌是否仍然有效
+     *
+     * @param token 访问令牌
+     * @param userInfo 令牌中的用户信息
+     * @return 是否有效
+     */
     public boolean isAccessTokenValid(String token, String userInfo) {
         User user = getById(extractUserId(userInfo));
         if (user == null || user.getPasswordUpdateTime() == null) {
@@ -171,6 +196,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return issuedAt != null && !issuedAt.isBefore(user.getPasswordUpdateTime());
     }
 
+    /**
+     * 用户登录
+     *
+     * @param data 登录参数
+     * @return 访问令牌信息
+     */
     public UserTokenVO login(UserLoginReq data) {
         User user = queryChain().eq(User::getUsername, data.getUsername()).one();
         if (user == null) {
@@ -260,6 +291,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     }
 
 
+    /**
+     * 更新当前用户资料
+     *
+     * @param req 用户资料
+     * @return 是否更新成功
+     */
     public Boolean updateInfo(UserUpdateReq req) {
         Integer userId = UserUtil.getCurrentUserId();
         User user = getById(userId);
@@ -285,6 +322,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         }
     }
 
+    /**
+     * 刷新当前用户令牌
+     *
+     * @param req 刷新令牌参数
+     * @return 新的令牌信息
+     */
     @Transactional(rollbackFor = Exception.class)
     public UserTokenVO refreshToken(UserTokenFreshReq req) {
         UserInfo userInfo = UserUtil.getCurrentUserInfo().orElseThrow(() -> new BusinessException("用户信息不存在！"));

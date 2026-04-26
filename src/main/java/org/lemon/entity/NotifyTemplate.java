@@ -48,15 +48,33 @@ public class NotifyTemplate implements Serializable {
      */
     private String channel;
 
+    /**
+     * 邮件主题模板
+     */
     private String subjectTemplate;
 
+    /**
+     * 邮件正文模板
+     */
     private String contentTemplate;
 
+    /**
+     * 是否启用
+     */
     private Boolean enabled;
 
+    /**
+     * 备注
+     */
     private String remark;
 
+    /**
+     * 创建时间
+     */
     private LocalDateTime createdTime;
 
+    /**
+     * 更新时间
+     */
     private LocalDateTime updatedTime;
 }

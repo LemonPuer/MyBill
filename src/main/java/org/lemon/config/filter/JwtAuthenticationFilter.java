@@ -18,7 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * description: add a description
+ * JWT 认证过滤器。
  *
  * @author Lemon
  * @version 1.0.0

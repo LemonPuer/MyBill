@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * description: add a description
+ * 消费分类统计返回。
  *
  * @author Lemon
  * @version 1.0.0

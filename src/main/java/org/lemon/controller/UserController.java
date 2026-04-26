@@ -40,10 +40,7 @@ public class UserController {
     private NotifyPreferenceService notifyPreferenceService;
 
     /**
-     * 登录
-     *
-     * @param req
-     * @return
+     * 用户登录并返回令牌。
      */
     @PostMapping("login")
     public ApiResp<UserTokenVO> login(@Validated @RequestBody ApiReq<UserLoginReq> req, HttpServletResponse response) {
@@ -65,6 +62,9 @@ public class UserController {
 
     /**
      * 发送找回密码验证码
+     *
+     * @param req 邮箱信息
+     * @return 是否发送成功
      */
     @PostMapping("sendResetCode")
     public ApiResp<Boolean> sendResetCode(@Validated @RequestBody ApiReq<UserSendResetCodeReq> req) {
@@ -73,6 +73,9 @@ public class UserController {
 
     /**
      * 重置密码
+     *
+     * @param req 重置密码参数
+     * @return 是否重置成功
      */
     @PostMapping("resetPassword")
     public ApiResp<Boolean> resetPassword(@Validated @RequestBody ApiReq<UserResetPasswordReq> req) {
@@ -80,9 +83,7 @@ public class UserController {
     }
 
     /**
-     * 刷新token
-     *
-     * @return
+     * 刷新访问令牌。
      */
     @PostMapping("refreshToken")
     public ApiResp<UserTokenVO> refreshToken(@Validated @RequestBody ApiReq<UserTokenFreshReq> req, HttpServletResponse response) {
@@ -92,9 +93,7 @@ public class UserController {
     }
 
     /**
-     * 获取用户信息
-     *
-     * @return
+     * 获取当前用户信息。
      */
     @PostMapping("getUserInfo")
     public ApiResp<UserInfoVO> getUserInfo() {
@@ -102,21 +101,29 @@ public class UserController {
     }
 
     /**
-     * 更新用户信息
-     *
-     * @param req
-     * @return
+     * 更新当前用户资料。
      */
     @PostMapping("updateInfo")
     public ApiResp<Boolean> updateInfo(@Validated @RequestBody ApiReq<UserUpdateReq> req) {
         return ApiResp.ok(userService.updateInfo(req.getData()));
     }
 
+    /**
+     * 获取当前用户通知偏好
+     *
+     * @return 当前通知偏好
+     */
     @PostMapping("getNotifyPreference")
     public ApiResp<NotifyPreferenceVO> getNotifyPreference() {
         return ApiResp.ok(notifyPreferenceService.getCurrentUserNotifyPreference());
     }
 
+    /**
+     * 更新当前用户通知偏好
+     *
+     * @param req 通知偏好设置
+     * @return 是否更新成功
+     */
     @PostMapping("updateNotifyPreference")
     public ApiResp<Boolean> updateNotifyPreference(@Validated @RequestBody ApiReq<NotifyPreferenceUpdateReq> req) {
         return ApiResp.ok(notifyPreferenceService.updateCurrentUserNotifyPreference(req.getData()));

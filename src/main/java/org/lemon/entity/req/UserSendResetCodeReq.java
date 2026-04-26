@@ -8,5 +8,8 @@ import lombok.Data;
 @Data
 public class UserSendResetCodeReq {
 
+    /**
+     * 找回密码邮箱
+     */
     private String email;
 }

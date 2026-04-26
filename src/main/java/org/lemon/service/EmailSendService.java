@@ -85,16 +85,27 @@ public class EmailSendService {
     /**
      * 系统发送通知邮件
      *
-     * @param dto
+     * @param dto 系统邮件参数
      */
     public void sendSystemEmail(SystemEmailDTO dto) {
         sendSystemEmailChecked(dto);
     }
 
+    /**
+     * 发送已渲染正文的系统邮件
+     *
+     * @param dto 系统邮件参数
+     */
     public void sendRenderedSystemEmail(SystemEmailDTO dto) {
         sendRenderedSystemEmailChecked(dto);
     }
 
+    /**
+     * 发送系统邮件并返回发送结果
+     *
+     * @param dto 系统邮件参数
+     * @return 是否发送成功
+     */
     public boolean sendSystemEmailChecked(SystemEmailDTO dto) {
         if (StrUtil.isNotBlank(propertiesService.getEmailApi())) {
             return sendByApi(dto);
@@ -106,6 +117,12 @@ public class EmailSendService {
         }
     }
 
+    /**
+     * 发送已渲染正文的系统邮件并返回发送结果
+     *
+     * @param dto 系统邮件参数
+     * @return 是否发送成功
+     */
     public boolean sendRenderedSystemEmailChecked(SystemEmailDTO dto) {
         if (StrUtil.isBlank(dto.getContent())) {
             throw new BusinessException("邮件内容不能为空！");
