@@ -4,7 +4,7 @@ import com.mybatisflex.core.BaseMapper;
 import org.lemon.entity.NotifyPreference;
 
 /**
- * 通知偏好表 映射层。
+ * 通知偏好 Mapper。
  *
  * @author Lemon
  * @since 2026-04-22

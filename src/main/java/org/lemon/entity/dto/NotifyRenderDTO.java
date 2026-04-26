@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 通知模板渲染结果
+ * 渲染通知模板后的主题和正文快照。
  *
  * @author Lemon
  * @since 2026-04-22
@@ -17,7 +17,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class NotifyRenderDTO {
 
+    /**
+     * 渲染后的邮件主题。
+     */
     private String subject;
 
+    /**
+     * 渲染后的邮件正文。
+     */
     private String content;
 }

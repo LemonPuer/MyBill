@@ -3,7 +3,7 @@ package org.lemon.entity.req;
 import lombok.Data;
 
 /**
- * description: add a description
+ * 用户资料更新参数。
  *
  * @author Lemon
  * @version 1.0.0
@@ -18,7 +18,7 @@ public class UserUpdateReq {
     private String email;
 
     /**
-     * 头像
+     * 头像地址
      */
     private String avatarUrl;
 

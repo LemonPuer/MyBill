@@ -12,11 +12,23 @@ import java.time.LocalDateTime;
 @Builder
 public class UserResetCodeDTO {
 
+    /**
+     * 验证码
+     */
     private String code;
 
+    /**
+     * 过期时间
+     */
     private LocalDateTime expireAt;
 
+    /**
+     * 最近发送时间
+     */
     private LocalDateTime lastSendAt;
 
+    /**
+     * 验证失败次数
+     */
     private Integer failedCount;
 }

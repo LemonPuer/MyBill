@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 账单
+ * 账单相关接口。
  *
  * @author Lemon
  * @version 1.0.0
@@ -33,10 +33,7 @@ public class AppController {
     private final FinancialObjectivesService financialObjectivesService;
 
     /**
-     * 解析用户描述
-     *
-     * @param req
-     * @return
+     * 解析用户输入的账单描述。
      */
     @PostMapping("analysis")
     public ApiResp<FinanceTransactionsVO> analysisUserDesc(@Validated @RequestBody ApiReq<StringReq> req) {
@@ -44,10 +41,7 @@ public class AppController {
     }
 
     /**
-     * 获取收支卡片
-     *
-     * @param req
-     * @return
+     * 获取指定时间范围内的收支卡片。
      */
     @PostMapping("getCashFlowCard")
     public ApiResp<List<CashFlowCardVO>> getCashFlowCard(@Validated @RequestBody ApiReq<TimeFrameReq> req) {
@@ -55,10 +49,7 @@ public class AppController {
     }
 
     /**
-     * 查询账单列表
-     *
-     * @param req
-     * @return
+     * 分页查询账单列表。
      */
     @PostMapping("getFinanceTransactionsList")
     public PageResp<FinanceTransactionsVO> getFinanceTransactionsList(@Validated @RequestBody ApiReq<FinanceTransactionsQueryReq> req) {
@@ -68,7 +59,8 @@ public class AppController {
     /**
      * 获取预算列表
      *
-     * @return
+     * @param req 时间范围
+     * @return 预算列表
      */
     @PostMapping("getBudgetInfo")
     public ApiResp<List<BudgetInfoVO>> getBudgetInfo(@Validated @RequestBody ApiReq<TimeFrameReq> req) {
@@ -76,10 +68,7 @@ public class AppController {
     }
 
     /**
-     * 获取消费趋势
-     *
-     * @param req
-     * @return
+     * 获取消费趋势列表。
      */
     @PostMapping("consumerTrends")
     public PageResp<ConsumerTrendsVO> getConsumerTrends(@Validated @RequestBody ApiReq<ConsumerTrendsReq> req) {
@@ -87,10 +76,7 @@ public class AppController {
     }
 
     /**
-     * 消费分类占比
-     *
-     * @param req
-     * @return
+     * 统计消费分类占比。
      */
     @PostMapping("consumptionStatistics")
     public ApiResp<List<ConsumptionStatisticsVO>> getConsumptionStatistics(@Validated @RequestBody ApiReq<ConsumerTrendsReq> req) {
@@ -98,10 +84,7 @@ public class AppController {
     }
 
     /**
-     * 新增/编辑分类
-     *
-     * @param req
-     * @return
+     * 新增或编辑分类。
      */
     @PostMapping("saveCategory")
     public ApiResp<Boolean> saveCategory(@Validated @RequestBody ApiReq<CategorySaveReq> req) {
@@ -109,10 +92,7 @@ public class AppController {
     }
 
     /**
-     * 查询分类
-     *
-     * @param req
-     * @return
+     * 分页查询分类。
      */
     @PostMapping("getCategory")
     public PageResp<CategoryVO> getCategory(@Validated @RequestBody ApiReq<BasePage> req) {
@@ -120,10 +100,7 @@ public class AppController {
     }
 
     /**
-     * 删除分类
-     *
-     * @param req
-     * @return
+     * 删除分类。
      */
     @PostMapping("delCategory")
     public ApiResp<Boolean> delCategory(@Validated @RequestBody ApiReq<IdReq> req) {
@@ -133,7 +110,8 @@ public class AppController {
     /**
      * 获取财务目标
      *
-     * @return
+     * @param req 分页参数
+     * @return 财务目标列表
      */
     @PostMapping("financialObjectives")
     public PageResp<FinancialObjectivesVO> getFinancialObjectives(@Validated @RequestBody ApiReq<BasePage> req) {
@@ -143,7 +121,8 @@ public class AppController {
     /**
      * 获取最近提醒
      *
-     * @return
+     * @param req 分页参数
+     * @return 最近提醒列表
      */
     @PostMapping("recentReminder")
     public PageResp<EmailRemainVO> getRecentReminder(@Validated @RequestBody ApiReq<BasePage> req) {
@@ -151,10 +130,7 @@ public class AppController {
     }
 
     /**
-     * 新增/编辑账单
-     *
-     * @param req
-     * @return
+     * 新增或编辑账单。
      */
     @PostMapping("saveFinanceTransactions")
     public ApiResp<Boolean> saveFinanceTransactions(@Validated @RequestBody ApiReq<FinanceTransactionsReq> req) {
@@ -162,10 +138,7 @@ public class AppController {
     }
 
     /**
-     * 删除账单
-     *
-     * @param req
-     * @return
+     * 删除账单。
      */
     @PostMapping("delFinanceTransactions")
     public ApiResp<Boolean> delFinanceTransactions(@Validated @RequestBody ApiReq<IdReq> req) {
@@ -173,10 +146,7 @@ public class AppController {
     }
 
     /**
-     * 新增/编辑预算
-     *
-     * @param req
-     * @return
+     * 新增或编辑预算。
      */
     @PostMapping("saveBudget")
     public ApiResp<Boolean> saveBudget(@Validated @RequestBody ApiReq<BudgetReq> req) {
@@ -184,10 +154,7 @@ public class AppController {
     }
 
     /**
-     * 删除预算
-     *
-     * @param req
-     * @return
+     * 删除预算。
      */
     @PostMapping("delBudget")
     public ApiResp<Boolean> delBudget(@Validated @RequestBody ApiReq<IdReq> req) {
@@ -195,10 +162,7 @@ public class AppController {
     }
 
     /**
-     * 新增/编辑提醒
-     *
-     * @param req
-     * @return
+     * 新增或编辑提醒。
      */
     @PostMapping("saveEmailRemain")
     public ApiResp<Boolean> saveEmailRemain(@Validated @RequestBody ApiReq<EmailRemainReq> req) {
@@ -206,10 +170,7 @@ public class AppController {
     }
 
     /**
-     * 删除提醒
-     *
-     * @param req
-     * @return
+     * 删除提醒。
      */
     @PostMapping("delEmailRemain")
     public ApiResp<Boolean> delEmailRemain(@Validated @RequestBody ApiReq<IdReq> req) {

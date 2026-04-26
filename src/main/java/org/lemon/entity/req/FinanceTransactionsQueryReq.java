@@ -7,7 +7,7 @@ import org.lemon.entity.common.BasePage;
 import java.time.LocalDateTime;
 
 /**
- * description: add a description
+ * 账单分页查询参数。
  *
  * @author Lemon
  * @version 1.0.0

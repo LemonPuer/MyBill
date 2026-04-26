@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * description: add a description
+ * 预算信息返回。
  *
  * @author Lemon
  * @version 1.0.0

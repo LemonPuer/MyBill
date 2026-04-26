@@ -11,9 +11,19 @@ import lombok.Getter;
 @Getter
 public enum NotifyBizTypeEnum {
 
+    /**
+     * 每日记账提醒
+     */
     DAILY_BOOKKEEPING("每日记账提醒"),
+
+    /**
+     * 月度摘要通知
+     */
     MONTHLY_SUMMARY("月度摘要");
 
+    /**
+     * 类型说明
+     */
     private final String desc;
 
     NotifyBizTypeEnum(String desc) {

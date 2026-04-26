@@ -11,8 +11,14 @@ import lombok.Getter;
 @Getter
 public enum NotifyChannelEnum {
 
+    /**
+     * 邮件渠道
+     */
     EMAIL("邮件");
 
+    /**
+     * 渠道说明
+     */
     private final String desc;
 
     NotifyChannelEnum(String desc) {
