@@ -95,7 +95,7 @@ public class BeanConfig {
         int processors = Runtime.getRuntime().availableProcessors();
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(processors);
-        executor.setCorePoolSize(processors * 2 + 1);
+        executor.setMaxPoolSize(processors * 2 + 1);
         executor.setQueueCapacity(50);
         executor.setKeepAliveSeconds(60);
         executor.setThreadNamePrefix("MyBill-");

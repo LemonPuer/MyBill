@@ -1,5 +1,6 @@
 package org.lemon.service;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import org.lemon.entity.MonthTotalRecord;
 import org.lemon.entity.User;
@@ -30,7 +31,7 @@ public class MonthlySummaryNotifyService {
         }
         Set<Integer> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
         Map<Integer, MonthTotalRecord> summaryMap = monthTotalRecordService.queryPreviousMonthSummaryByUserIds(userIds);
-        users.forEach(user -> {
+        users.stream().filter(user -> StrUtil.isNotBlank(user.getEmail())).forEach(user -> {
             MonthTotalRecord summary = summaryMap.get(user.getId());
             if (summary == null) {
                 return;
@@ -39,10 +40,6 @@ public class MonthlySummaryNotifyService {
             notifyRecordService.createMonthlySummaryPendingRecord(user, effectiveMonth, now,
                     buildPayload(user, summary, actionUrl, effectiveMonth));
         });
-    }
-
-    Map<String, Object> buildPayload(User user, MonthTotalRecord summary, String actionUrl) {
-        return buildPayload(user, summary, actionUrl, resolveMonthLabel(summary, null));
     }
 
     private Map<String, Object> buildPayload(User user, MonthTotalRecord summary, String actionUrl, String effectiveMonth) {

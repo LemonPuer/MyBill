@@ -30,7 +30,7 @@ public class ScheduleController {
     /**
      * 每月1日凌晨统计上月账单汇总
      */
-    @Async
+    @Async("commonExecutor")
     @Scheduled(cron = "0 0 3 1 * ? ")
     public void monthStatistics() {
         monthTotalRecordService.monthStatistics(null);
@@ -39,7 +39,7 @@ public class ScheduleController {
     /**
      * 按小时生成待发送的每日记账提醒
      */
-    @Async
+    @Async("commonExecutor")
     @Scheduled(cron = "0 0 * * * ?")
     public void generateDailyBookkeepingNotifyRecords() {
         notifyScheduleService.generateDailyBookkeepingNotifyRecords();
@@ -48,7 +48,7 @@ public class ScheduleController {
     /**
      * 每月1日上午生成上月汇总通知
      */
-    @Async
+    @Async("commonExecutor")
     @Scheduled(cron = "0 0 9 1 * ?")
     public void generateMonthlySummaryNotifyRecords() {
         notifyScheduleService.generateMonthlySummaryNotifyRecords();
@@ -57,7 +57,7 @@ public class ScheduleController {
     /**
      * 轮询发送到期的通知记录
      */
-    @Async
+    @Async("commonExecutor")
     @Scheduled(cron = "0 * * * * ?")
     public void sendDailyBookkeepingNotifyRecords() {
         notifyScheduleService.sendDueNotifyRecords();

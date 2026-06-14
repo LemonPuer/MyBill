@@ -31,9 +31,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class NotifyTemplateService extends ServiceImpl<NotifyTemplateMapper, NotifyTemplate> {
 
-    private final NotifyTemplateMapper notifyTemplateMapper;
+    private static final freemarker.template.Configuration FREEMARKER_CONFIG = createFreeMarkerConfiguration();
 
-    private final freemarker.template.Configuration freeMarkerConfiguration;
+    private final NotifyTemplateMapper notifyTemplateMapper;
 
     public NotifyRenderDTO renderByTemplateCode(String templateCode, Map<String, Object> templateParams) {
         if (StrUtil.isBlank(templateCode)) {
@@ -46,7 +46,7 @@ public class NotifyTemplateService extends ServiceImpl<NotifyTemplateMapper, Not
         if (template == null) {
             throw new BusinessException("通知模板不存在或未启用！");
         }
-        return renderTemplate(freeMarkerConfiguration, template, templateParams);
+        return renderTemplate(FREEMARKER_CONFIG, template, templateParams);
     }
 
     static freemarker.template.Configuration createFreeMarkerConfiguration() {

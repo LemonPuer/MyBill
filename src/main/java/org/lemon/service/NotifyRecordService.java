@@ -67,6 +67,9 @@ public class NotifyRecordService extends ServiceImpl<NotifyRecordMapper, NotifyR
     public List<NotifyRecord> queryDueSendableRecords(LocalDateTime now) {
         return queryChain()
                 .le(NotifyRecord::getScheduledTime, now)
+                .in(NotifyRecord::getStatus,
+                        NotifyRecordStatusEnum.PENDING.getCode(),
+                        NotifyRecordStatusEnum.FAILED.getCode())
                 .list().stream()
                 .filter(this::isSendableRecord)
                 .toList();

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -69,7 +70,7 @@ public class NotifyScheduleService {
             content = renderDTO.getContent();
 
             SystemEmailDTO emailDTO = new SystemEmailDTO();
-            emailDTO.setTargetUser((String) payload.get("userName"));
+            emailDTO.setTargetUser(Objects.toString(payload.get("userName"), null));
             emailDTO.setTargetEmail(record.getTarget());
             emailDTO.setSubject(subject);
             emailDTO.setContent(content);
